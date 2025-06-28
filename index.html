@@ -4,41 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <!-- 
-    ================================================================================
-    Vercel Turnkey Deployment Instructions
-    ================================================================================
-    Deploying this static website is incredibly simple with Vercel.
-
-    Step 1: Get a Vercel Account
-    - Go to https://vercel.com/signup and create a free account. You can sign up with GitHub, GitLab, or your email.
-
-    Step 2: Use the Vercel CLI (Command Line Interface)
-    - Open your terminal or command prompt.
-    - Install the Vercel CLI globally by running this command:
-      npm install -g vercel
-
-    Step 3: Deploy Your Site
-    - Save this file as 'index.html' in a new folder on your computer.
-    - Open your terminal and navigate into that folder. (e.g., `cd path/to/your/folder`)
-    - Run the single command:
-      vercel
-    
-    - The first time you run this, you'll need to log in (`vercel login`).
-    - Follow the on-screen prompts. Vercel will automatically detect the project settings.
-      - Scope: Select your Vercel account.
-      - Link to existing project?: No
-      - Project name: (e.g., ava-landing-page)
-      - Directory: Just press Enter to use the current directory.
-    
-    - That's it! Vercel will build and deploy your site, giving you a live URL. 
-      This file requires no build step, so deployment is nearly instantaneous.
-
-    ================================================================================
-    -->
-    
-    <title>AVA: 24/7 AI Virtual Agent to Capture Leads & Grow Your Business</title>
-    <meta name="description" content="Stop missing calls and losing leads. AVA, your 24/7 AI Virtual Agent, captures every opportunity, answers customer questions, and books appointments, turning inquiries into revenue.">
+    <title>AI Virtual Agent for Your Local Businesses | AVA</title>
+    <meta name="description" content="Stop missing calls and losing leads in your area. AVA, your 24/7 AI Virtual Agent, captures every opportunity, answers customer questions, and books appointments. Get started for just $99.">
     
     <!-- React and Babel for JSX transpilation -->
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
@@ -57,7 +24,7 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     
     <!-- Custom Styles -->
     <style>
@@ -80,26 +47,114 @@
         .modal-enter-active { opacity: 1; transition: opacity 300ms; }
         .modal-exit { opacity: 1; }
         .modal-exit-active { opacity: 0; transition: opacity 300ms; }
+
+        /* --- Integrated Chatbot Widget Styles --- */
+        .ava-widget-container {
+            position: fixed;
+            bottom: 1.5rem; /* 24px */
+            right: 1.5rem; /* 24px */
+            z-index: 1000;
+        }
+        .ava-chat-panel {
+            width: clamp(300px, 90vw, 380px);
+            max-height: 70vh;
+            transform-origin: bottom right;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease-out;
+            background-color: #111827; /* Dark mode background */
+        }
+        .ava-widget-container.closed .ava-chat-panel {
+            transform: scale(0.95) translateY(10px);
+            opacity: 0;
+            pointer-events: none;
+        }
+        #ava-widget-toggle-btn {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease;
+        }
+        #ava-widget-toggle-btn:hover {
+            transform: scale(1.1);
+        }
+        .pulsing-chat {
+            animation: pulse-chat-animation 2s infinite;
+        }
+        @keyframes pulse-chat-animation {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 20px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+        .chat-bubble {
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+        .chat-body::-webkit-scrollbar { width: 6px; }
+        .chat-body::-webkit-scrollbar-track { background: transparent; }
+        .chat-body::-webkit-scrollbar-thumb {
+            background-color: #4a5568;
+            border-radius: 20px;
+        }
     </style>
 </head>
 <body>
     <div id="root"></div>
     <div id="particles-js" style="position: fixed; width: 100%; height: 100%; top: 0; left: 0; z-index: -1; pointer-events: none;"></div>
     
+    <!-- Firebase SDK Mock -->
+    <script type="module">
+        // In a real application, you would replace these mock values with your actual Firebase configuration.
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+            apiKey: "AIzaSy_FAKE_API_KEY",
+            authDomain: "your-project-id.firebaseapp.com",
+            projectId: "your-project-id",
+            storageBucket: "your-project-id.appspot.com",
+            messagingSenderId: "1234567890",
+            appId: "1:1234567890:web:abcdef123456"
+        };
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
+        window.firebaseServices = async () => {
+            console.log("Firebase services mock loaded. Lead data will be logged to the console.");
+            // This is a simplified mock of Firebase for demonstration.
+            const mockDb = {
+                // Mocks the collection function
+                collection: (path) => ({
+                    // Mocks the addDoc function
+                    addDoc: (data) => {
+                        console.log(`Mock Firestore: Adding doc to '${path}':`, data);
+                        // Simulate a successful database write
+                        return Promise.resolve({ id: `mock-doc-${Date.now()}` });
+                    }
+                })
+            };
+            const mockApp = {}; // Mock app object
+            const mockAuth = {}; // Mock auth object
+
+            // Make the mocked services and helper functions available globally for the React app
+            return { 
+                app: mockApp, 
+                auth: mockAuth, 
+                db: mockDb, 
+                appId, 
+                // These functions mimic the real Firebase v9 SDK structure
+                collection: (db, path) => db.collection(path), 
+                addDoc: (collectionRef, data) => collectionRef.addDoc(data) 
+            };
+        };
+    </script>
+
+
     <script type="text/babel">
-        // Helper function to combine class names
+        // Helper function to combine class names conditionally
         function classNames(...classes) {
             return classes.filter(Boolean).join(' ')
         }
 
         // --- SEO & Data ---
         const seoData = {
-            title: "AVA: 24/7 AI Virtual Agent to Capture Leads & Grow Your Business",
-            description: "Stop missing calls and losing leads. AVA, your 24/7 AI Virtual Agent, captures every opportunity, answers customer questions, and books appointments, turning inquiries into revenue.",
-            keywords: "AI virtual agent, chatbot, lead generation, 24/7 customer service, business automation, small business tools, lead capture",
+            title: "AI Virtual Agent for Businesses in Lafayette, LA | AVA",
+            description: "Stop missing calls and losing leads in Lafayette. AVA, your 24/7 AI Virtual Agent, captures every opportunity, answers customer questions, and books appointments. Get started for just $99.",
+            keywords: "AI virtual agent, Lafayette chatbot, lead generation, 24/7 customer service, business automation, small business tools Louisiana",
             author: "Magnolia AI Experts",
-            url: "https://magnoliaaiexperts.com/ava-local", // Consider updating this to your new Vercel URL once deployed
-            image: "https://raw.githubusercontent.com/magnoliaaiexperts/dis/main/Gemini_Generated_Image_449ix4449ix4449i.jpg",
+            url: "https://magnoliaaiexperts.com/ava-local",
+            image: "https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg", // Updated Image URL
         };
 
         const navLinks = [
@@ -108,19 +163,22 @@
             { name: 'The Offer', href: '#promo' },
             { name: 'How It Works', href: '#how-it-works' },
             { name: 'Results', href: '#testimonials' },
-            { name: 'Live Demo', href: '#experience-demo' },
             { name: 'Get Started', href: '#signup', isButton: true },
         ];
         
         // --- Reusable Components ---
+
+        // Component to manage the document's head for SEO
         const Head = ({ title, description, keywords }) => {
             React.useEffect(() => {
                 document.title = title;
                 document.querySelector('meta[name="description"]').setAttribute("content", description);
+                // In a full React app (like Next.js), you'd also manage keywords meta tag here.
             }, [title, description, keywords]);
             return null;
         };
 
+        // Standardized section title component
         const SectionTitle = ({ title, subtitle, className }) => (
             <div className={classNames("text-center mb-10 md:mb-16", className)}>
                 <h2 className="text-3xl md:text-4xl font-black text-white relative inline-block pb-3 mb-4">
@@ -131,8 +189,8 @@
             </div>
         );
 
-        // --- Integrated Sign-Up Modal Component (Now with Google Sheets) ---
-        const SignUpModal = ({ onClose }) => {
+        // Sign-up modal with form handling and Firebase integration
+        const SignUpModal = ({ onClose, firebase }) => {
             const [formData, setFormData] = React.useState({
                 name: '', email: '', industry: '', businessName: '', role: ''
             });
@@ -147,6 +205,7 @@
             const handleSubmit = async (e) => {
                 e.preventDefault();
                 setError('');
+                // Basic form validation
                 if (!formData.name || !formData.email || !formData.industry || !formData.businessName || !formData.role) {
                     setError("Please fill in all fields.");
                     return;
@@ -155,47 +214,33 @@
                     setError("Please enter a valid email address.");
                     return;
                 }
-                
-                setStatus('loading');
-                
-                // =================================================================================
-                // IMPORTANT: You MUST replace this placeholder with your own Google Apps Script
-                //            Web App URL. You get this URL after you "Deploy" your script.
-                //            The form will not work without your unique URL.
-                // =================================================================================
-                const scriptURL = 'https://script.google.com/macros/s/AKfycbzjAWMC-vx8qiUlBlC7KNh-C-vCzwy213Cf9TykDBsv6sYC93vUOCTW4iWau_yofIc/exec';
-
-                if (scriptURL === 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE') {
-                    setError("Developer Action Required: Please open the code and replace the placeholder 'scriptURL'. You need to deploy your Google Apps Script to get the correct URL.");
+                // Check if Firebase services are available
+                if (!firebase) {
+                    setError("Database connection is not ready. Please try again in a moment.");
                     setStatus('error');
                     return;
                 }
-
+                
+                setStatus('loading');
                 try {
-                    const response = await fetch(scriptURL, {
-                        method: 'POST',
-                        mode: 'cors', // Required for cross-origin requests
-                        redirect: 'follow', 
-                        headers: {
-                            "Content-Type": "text/plain;charset=utf-8", 
-                        },
-                        body: JSON.stringify({ ...formData, createdAt: new Date().toISOString() }),
+                    const { db, appId, collection, addDoc } = firebase;
+                    // Define the path to the Firestore collection
+                    const leadsCollection = collection(db, `artifacts/${appId}/public/data/leads`);
+                    // Add the form data as a new document
+                    await addDoc(leadsCollection, {
+                        ...formData,
+                        createdAt: new Date().toISOString(), // Use ISO string for consistency
                     });
-
-                    if (response.ok || response.type === 'opaque') {
-                         console.log("Lead successfully submitted to Google Sheet.");
-                         setStatus('success');
-                    } else {
-                         const errorText = await response.text();
-                         throw new Error(errorText || 'An unknown error occurred.');
-                    }
+                    console.log("Lead successfully submitted.");
+                    setStatus('success');
                 } catch (err) {
-                    console.error('Google Sheet Submission Error:', err);
-                    setError('An error occurred. Please check your connection and try again.');
+                    console.error('Submission Error:', err);
+                    setError('An error occurred. Please try again.');
                     setStatus('error');
                 }
             };
             
+            // Prevents modal from closing when clicking inside the content
             const handleModalContentClick = (e) => e.stopPropagation();
 
             return (
@@ -227,8 +272,8 @@
                                 <form onSubmit={handleSubmit} className="grid gap-5">
                                     {error && <div className="text-red-400 bg-red-900/60 p-3 rounded-md text-sm border border-red-700">{error}</div>}
                                     
-                                    <input type="text" name="name" placeholder="Full Name (e.g., John Doe)" required value={formData.name} onChange={handleChange} className="w-full px-4 py-3 bg-gray-800 text-gray-100 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-gray-400" />
-                                    <input type="email" name="email" placeholder="Email Address (e.g., john.d@example.com)" required value={formData.email} onChange={handleChange} className="w-full px-4 py-3 bg-gray-800 text-gray-100 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-gray-400" />
+                                    <input type="text" name="name" placeholder="Full Name (e.g., John Boudreaux)" required value={formData.name} onChange={handleChange} className="w-full px-4 py-3 bg-gray-800 text-gray-100 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-gray-400" />
+                                    <input type="email" name="email" placeholder="Email Address (e.g., john.b@example.com)" required value={formData.email} onChange={handleChange} className="w-full px-4 py-3 bg-gray-800 text-gray-100 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-gray-400" />
                                     <select name="industry" required value={formData.industry} onChange={handleChange} className="w-full px-4 py-3 bg-gray-800 text-gray-100 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
                                         <option value="" disabled>Select Your Industry...</option>
                                         <option value="home_services">Home Services (Plumbing, HVAC, etc.)</option>
@@ -243,13 +288,8 @@
                                     <input type="text" name="businessName" placeholder="Business Name" required value={formData.businessName} onChange={handleChange} className="w-full px-4 py-3 bg-gray-800 text-gray-100 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-gray-400" />
                                     <input type="text" name="role" placeholder="Your Role (e.g., Owner, Manager)" required value={formData.role} onChange={handleChange} className="w-full px-4 py-3 bg-gray-800 text-gray-100 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-gray-400" />
                                     
-                                    <button 
-                                        type="submit" 
-                                        disabled={status === 'loading'} 
-                                        className="w-full px-4 py-3 text-lg bg-teal-500 text-gray-900 font-bold rounded-lg shadow-md hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-75 disabled:opacity-60 disabled:cursor-not-allowed transition-colors duration-150">
-                                        {status === 'loading' 
-                                            ? 'Securing Your Spot...' 
-                                            : 'Claim My $99 Spot Now'}
+                                    <button type="submit" disabled={status === 'loading' || !firebase} className="w-full px-4 py-3 text-lg bg-teal-500 text-gray-900 font-bold rounded-lg shadow-md hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-75 disabled:opacity-60 disabled:cursor-not-allowed transition-colors duration-150">
+                                        {status === 'loading' ? 'Securing Your Spot...' : 'Claim My $99 Spot Now'}
                                     </button>
                                 </form>
                             </>
@@ -258,9 +298,191 @@
                 </div>
             );
         };
+        
+        // Chatbot Widget Component
+        const ChatbotWidget = () => {
+            const [isOpen, setIsOpen] = React.useState(false);
+            const [messages, setMessages] = React.useState([
+                { text: "Hey there! I'm AVA, your friendly assistant from Magnolia AI Experts. How can I help you, cher?", sender: 'bot' }
+            ]);
+            const [inputValue, setInputValue] = React.useState('');
+            const [isTyping, setIsTyping] = React.useState(false);
+            const [hasBeenOpened, setHasBeenOpened] = React.useState(false);
+            const chatBodyRef = React.useRef(null);
+            const videoRef = React.useRef(null);
+
+            // Effect to autoscroll to the latest message
+            React.useEffect(() => {
+                if (chatBodyRef.current) {
+                    chatBodyRef.current.scrollTop = chatBodyRef.current.scrollHeight;
+                }
+            }, [messages, isTyping]);
+            
+            // Effect to set the video source for the avatar
+            React.useEffect(() => {
+                if(videoRef.current) {
+                    const darkModeVideoURL = 'https://pub-23f7e1f517734fc09a3807185400d484.r2.dev/AVA_Wave_And_Chill.mp4';
+                    if (videoRef.current.src !== darkModeVideoURL) {
+                        videoRef.current.src = darkModeVideoURL;
+                    }
+                }
+            }, []);
+
+            const toggleWidget = () => {
+                setIsOpen(!isOpen);
+                if (!hasBeenOpened) {
+                    setHasBeenOpened(true); // Prevents pulsing animation after first open
+                }
+            };
+            
+            const handleInputChange = (e) => {
+                setInputValue(e.target.value);
+            };
+
+            const handleSendMessage = () => {
+                const messageText = inputValue.trim();
+                if (messageText) {
+                    setMessages(prev => [...prev, { text: messageText, sender: 'user' }]);
+                    setInputValue('');
+                    simulateBotResponse(messageText);
+                }
+            };
+
+            const handleKeyUp = (event) => {
+                if (event.key === 'Enter') {
+                    handleSendMessage();
+                }
+            };
+            
+            // Simulates a bot response based on keywords
+            const simulateBotResponse = (userMessage) => {
+                setIsTyping(true);
+                
+                setTimeout(() => {
+                    // Pre-defined responses for the demo
+                    const responses = {
+                        "default": "That's a great question! While I'm a demo, a fully trained AVA could give you a detailed answer. Can I help you get started with our $99 offer?",
+                        "hello": "Hey there yourself! How's it going?",
+                        "help": "Sure thing! You can ask me about our services, pricing, or how to get started. What's on your mind?",
+                        "joke": "Why don't crawfish share? Because they're shellfish! Ha!",
+                        "thanks": "You're very welcome! Let me know if you need anything else, yeah?",
+                        "price": "We have a special Founder's Rate right now for just $99/mo, locked in for life! It's a great deal to get started.",
+                        "hours": "We work for you 24/7! Our human team at Magnolia AI Experts is available during standard business hours to get you set up.",
+                        "plumber": "Absolutely! AVA is perfect for plumbers. It can book appointments for leaky faucets or clogged drains, even when you're on a job. You'll never miss a lead."
+                    };
+
+                    const lowerCaseMessage = userMessage.toLowerCase();
+                    let botMessage = responses.default;
+
+                    // Simple keyword matching for demo purposes
+                    if (lowerCaseMessage.includes('help')) botMessage = responses.help;
+                    else if (lowerCaseMessage.includes('hello') || lowerCaseMessage.includes('hi')) botMessage = responses.hello;
+                    else if (lowerCaseMessage.includes('joke')) botMessage = responses.joke;
+                    else if (lowerCaseMessage.includes('price') || lowerCaseMessage.includes('cost') || lowerCaseMessage.includes('discount')) botMessage = responses.price;
+                    else if (lowerCaseMessage.includes('hour')) botMessage = responses.hours;
+                    else if (lowerCaseMessage.includes('plumber') || lowerCaseMessage.includes('home service')) botMessage = responses.plumber;
+                    else if (lowerCaseMessage.includes('thank')) botMessage = responses.thanks;
+
+                    setIsTyping(false);
+                    setMessages(prev => [...prev, { text: botMessage, sender: 'bot' }]);
+
+                }, 1500 + Math.random() * 500); // Simulate network delay
+            };
+
+            return (
+                <div id="ava-chatbot-widget" className={classNames('ava-widget-container', !isOpen && 'closed')}>
+                    {/* Chat Window */}
+                    <div id="ava-chat-window" className="ava-chat-panel flex flex-col rounded-2xl shadow-2xl overflow-hidden border border-gray-700">
+                        {/* Header */}
+                        <div className="flex items-center justify-between p-4 bg-teal-600 text-white">
+                            <div className="flex items-center space-x-3">
+                                <div className="relative">
+                                    <img className="w-12 h-12 rounded-full bg-teal-800 object-cover" src="https://pub-23f7e1f517734fc09a3807185400d484.r2.dev/AVA_Crawfish_Mascot-removebg-preview.png" alt="AVA Mascot" />
+                                    <span className="absolute bottom-0 right-0 block h-3 w-3 rounded-full bg-green-400 border-2 border-teal-600"></span>
+                                </div>
+                                <div>
+                                    <h3 className="font-bold text-lg">AVA for Magnolia AI</h3>
+                                    <p className="text-sm opacity-90">Typically replies instantly</p>
+                                </div>
+                            </div>
+                            <button onClick={toggleWidget} aria-label="Close Chat" className="p-1 rounded-full hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-white">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                            </button>
+                        </div>
+                        
+                        {/* Message Body */}
+                        <div ref={chatBodyRef} className="chat-body flex-1 p-4 space-y-4 overflow-y-auto">
+                            {messages.map((msg, index) => (
+                                <div key={index} className={classNames('flex', msg.sender === 'user' ? 'justify-end' : 'justify-start')}>
+                                    <div className={classNames('chat-bubble p-3 rounded-lg', 
+                                        msg.sender === 'user' 
+                                            ? 'bg-indigo-600 text-white rounded-br-none'
+                                            : 'bg-gray-700 text-gray-200 rounded-bl-none'
+                                    )}>
+                                        <p>{msg.text}</p>
+                                    </div>
+                                </div>
+                            ))}
+                            {isTyping && (
+                                <div className="flex justify-start">
+                                    <div className="chat-bubble p-3 bg-gray-700 rounded-lg rounded-bl-none flex items-center space-x-2">
+                                        <span className="block w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{animationDelay: '-0.3s'}}></span>
+                                        <span className="block w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{animationDelay: '-0.15s'}}></span>
+                                        <span className="block w-2 h-2 bg-gray-500 rounded-full animate-bounce"></span>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                        
+                        {/* Footer Input */}
+                        <div className="p-4 bg-gray-800 border-t border-gray-700">
+                            <div className="flex items-center space-x-2">
+                                <input 
+                                    type="text" 
+                                    value={inputValue}
+                                    onChange={handleInputChange}
+                                    onKeyUp={handleKeyUp}
+                                    placeholder="Type a message..." 
+                                    className="flex-1 w-full px-4 py-2 bg-gray-600 text-white placeholder-gray-400 border border-transparent rounded-full focus:outline-none focus:ring-2 focus:ring-teal-500"
+                                />
+                                <button 
+                                    onClick={handleSendMessage} 
+                                    aria-label="Send Message" 
+                                    disabled={!inputValue.trim()}
+                                    className="p-3 bg-teal-500 hover:bg-teal-600 text-gray-900 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 transform rotate-45" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Floating Avatar Toggle Button */}
+                     <button 
+                        id="ava-widget-toggle-btn"
+                        onClick={toggleWidget} 
+                        aria-label="Open Chat" 
+                        aria-expanded={isOpen}
+                        className={classNames(
+                            'w-24 h-24 bg-transparent rounded-full flex items-center justify-center overflow-hidden focus:outline-none focus:ring-4 focus:ring-teal-500 focus:ring-opacity-50',
+                            !isOpen && !hasBeenOpened && 'pulsing-chat'
+                         )}
+                     >
+                        <video 
+                            ref={videoRef}
+                            id="avatar-video"
+                            className="w-full h-full object-cover"
+                            autoPlay
+                            muted
+                            playsInline
+                        >
+                        </video>
+                    </button>
+                </div>
+            );
+        };
 
         // --- Section Components ---
-        
         const Navigation = ({ activeSection, onCtaClick }) => (
              <nav className="sticky top-0 z-40 bg-gray-900/80 backdrop-blur-lg shadow-2xl py-2">
                 <div className="container mx-auto px-4">
@@ -288,18 +510,10 @@
             </nav>
         );
 
-        const Header = ({ onCtaClick }) => {
+        const Header = () => {
              const typedRef = React.useRef(null);
              React.useEffect(() => {
-                 const options = { 
-                     strings: ['Capture Every Lead, 24/7.', 'Turn Missed Calls into Revenue.', 'The AI That Works While You Sleep.', 'Never Lose a Customer Again.'], 
-                     typeSpeed: 50, 
-                     backSpeed: 30, 
-                     backDelay: 2500, 
-                     startDelay: 500, 
-                     loop: true, 
-                     smartBackspace: true, 
-                 };
+                 const options = { strings: ['Your 24/7 Virtual Receptionist.', 'Turn Missed Calls into Booked Jobs.', 'The AI Employee That Never Sleeps.', 'Built for Local Businesses.'], typeSpeed: 50, backSpeed: 30, backDelay: 2500, startDelay: 500, loop: true, smartBackspace: true, };
                  const typed = new Typed(typedRef.current, options);
                  return () => typed.destroy();
              }, []);
@@ -309,12 +523,12 @@
              }, []);
 
              return (
-                 <header id="home" className="relative text-white text-center overflow-hidden bg-cover bg-center bg-fixed" style={{ backgroundImage: "url('https://raw.githubusercontent.com/magnoliaaiexperts/dis/main/Gemini_Generated_Image_449ix4449ix4449i.jpg')" }}>
+                 <header id="home" className="relative text-white text-center overflow-hidden bg-cover bg-center bg-fixed" style={{ backgroundImage: "url('https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2')" }}>
                      <div className="absolute inset-0 bg-black/75 z-10"></div>
                      <div className="relative z-20 container mx-auto px-4 py-20 md:py-32 lg:py-40 flex flex-col items-center">
                          <div className="absolute top-4 right-4 md:top-8 md:right-8 z-30">
                              <div className="bg-teal-500/90 text-white rounded-full w-28 h-28 flex flex-col items-center justify-center text-center shadow-lg pulse">
-                                 <span className="text-xs font-bold -mt-1">Founder's Rate</span>
+                                 <span className="text-xs font-bold -mt-1">Special Rate</span>
                                  <span className="text-4xl font-black leading-none">$99</span>
                                  <span className="text-xs opacity-80">Locked In</span>
                              </div>
@@ -326,18 +540,17 @@
                              </a>
                          </div>
                          <div className="max-w-4xl">
-                             <h1 className="text-4xl md:text-5xl lg:text-6xl font-black mb-4 slide-up">Stop Losing Leads.</h1>
+                             <h1 className="text-4xl md:text-5xl lg:text-6xl font-black mb-4 slide-up">Stop Losing Leads in Lafayette.</h1>
                              <p className="text-teal-400 font-bold text-lg md:text-xl lg:text-2xl mb-6 min-h-[3em] slide-up">
                                  <span ref={typedRef}></span>
                              </p>
-                             <p className="text-base md:text-lg text-gray-200 max-w-2xl mx-auto mb-8 slide-up">Every missed call is a lost customer. Every unanswered email is a competitor's gain. AVA works 24/7 to engage customers, book appointments, and capture leads—turning your website traffic into real revenue.</p>
+                             <p className="text-base md:text-lg text-gray-200 max-w-2xl mx-auto mb-8 slide-up">For local business owners, every missed call is a lost opportunity. AVA works 24/7 to engage your customers, book appointments, and capture leads—turning every inquiry into revenue.</p>
                              <div className="flex flex-wrap justify-center gap-3 md:gap-4 slide-up">
-                                  <button onClick={onCtaClick} className="cta-button inline-block bg-teal-500 text-gray-900 font-bold text-lg px-8 py-4 rounded-full transition-transform duration-300 hover:-translate-y-1 shadow-lg">
-                                      Start Capturing Leads Now
-                                  </button>
-                                  <a href="#features" className="cta-button inline-block bg-white/10 backdrop-blur-sm border border-white/20 text-white font-bold text-lg px-8 py-4 rounded-full transition-transform duration-300 hover:bg-white/20 hover:-translate-y-1">
-                                      See How It Works
-                                  </a>
+                                 {['24/7 Lead Capture', 'Instant Answers', 'Saves You Time'].map(feature => (
+                                     <div key={feature} className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-5 py-3">
+                                         <span className="font-bold text-white text-sm md:text-base">✓ {feature}</span>
+                                     </div>
+                                 ))}
                              </div>
                          </div>
                      </div>
@@ -348,13 +561,13 @@
         const FeaturesSection = () => (
              <section id="features" className="bg-gray-800 py-16 md:py-24">
                  <div className="container mx-auto px-4">
-                     <SectionTitle title="The AI Employee That Pays for Itself" subtitle="AVA does the repetitive work so you can focus on your real job." />
+                     <SectionTitle title="The AI Employee That Pays for Itself" subtitle="AVA does the repetitive work so you can focus on your craft." />
                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                          {[
                              { icon: '💰', title: 'Never Miss a Sale', description: "AVA qualifies leads and books appointments 24/7, even when you're on a job or asleep.", aria: 'Money Bag Icon' },
                              { icon: '🕒', title: 'Free Up Your Schedule', description: "Stop answering the same questions all day. Let your AI handle FAQs about services, hours, and pricing.", aria: 'Clock Icon' },
                              { icon: '😊', title: 'Delight Every Customer', description: "Provide instant, helpful answers anytime. A great first impression that builds trust and loyalty.", aria: 'Happy Face Icon' },
-                             { icon: '⚡', title: 'Launch in 3 Days', description: "We'll have your custom AI agent trained and live on your site in a matter of days. No technical work required.", aria: 'Lightning Bolt Icon' },
+                             { icon: '⚡', title: 'Launch in 3 Days', description: "Our expert team will have your custom AI agent trained and live on your site in a matter of days.", aria: 'Lightning Bolt Icon' },
                          ].map((feature) => (
                              <div key={feature.title} className="feature-card bg-gray-900 p-8 rounded-xl shadow-lg text-center transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:border-teal-500 border-2 border-transparent">
                                  <div className="text-5xl mb-4" role="img" aria-label={feature.aria}>{feature.icon}</div>
@@ -373,7 +586,7 @@
                       <div className="promotion-card bg-gradient-to-br from-gray-700 to-gray-800 text-center p-8 md:p-12 rounded-2xl border border-indigo-500 shadow-xl max-w-4xl mx-auto">
                           <h2 className="text-3xl md:text-4xl font-bold text-teal-400 mb-3">Limited-Time Founder's Rate</h2>
                           <p className="text-lg text-yellow-300 font-bold mb-4">Only 7 spots remaining at this price!</p>
-                          <p className="text-base md:text-lg text-gray-200">To celebrate our launch, the first 20 businesses to sign up get our complete AI Virtual Agent package for just <span className="font-bold text-white text-xl">$99/mo</span>. This rate is locked in forever. Regular price: <s>$249/mo</s>.</p>
+                          <p className="text-base md:text-lg text-gray-200">To celebrate our launch, the first 20 local businesses to sign up get our complete AI Virtual Agent package for just <span className="font-bold text-white text-xl">$99/mo</span>. This rate is locked in forever. Regular price: <s>$249/mo</s>.</p>
                       </div>
                   </div>
              </section>
@@ -406,20 +619,20 @@
         const TestimonialsSection = () => (
              <section id="testimonials" className="bg-gray-800 py-16 md:py-24">
                  <div className="container mx-auto px-4">
-                     <SectionTitle title="Proven Results for Businesses Like Yours" />
+                     <SectionTitle title="Trusted by Businesses Like Yours" />
                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-start">
                          <div className="testimonial-card relative bg-gray-900 p-8 rounded-xl shadow-lg border border-gray-700">
                               <div className="absolute top-4 left-6 text-7xl font-serif text-indigo-500/20 -z-0">"</div>
                               <div className="relative z-10">
-                                 <p className="text-lg italic text-gray-300 mb-6">"In the first month, we saw a <span className='font-bold text-white'>30% increase in booked appointments</span> because AVA captured all the after-hours website leads we used to miss. It's a total game-changer."</p>
-                                 <div className="text-right font-bold text-teal-400">- J. Smith, Home Services Owner</div>
+                                 <p className="text-lg italic text-gray-300 mb-6">"In the first month, we saw a <span className='font-bold text-white'>30% increase in booked appointments</span> because AVA captured all the after-hours website leads we used to miss. It's a game-changer for our Lafayette office."</p>
+                                 <div className="text-right font-bold text-teal-400">- J. Broussard, Home Services</div>
                               </div>
                          </div>
                          <div className="testimonial-card relative bg-gray-900 p-8 rounded-xl shadow-lg border border-gray-700">
                               <div className="absolute top-4 left-6 text-7xl font-serif text-indigo-500/20 -z-0">"</div>
                               <div className="relative z-10">
-                                 <p className="text-lg italic text-gray-300 mb-6">"I was skeptical, but AVA now handles 90% of our routine questions about our menu and hours. My staff is less stressed and can focus on the customers in front of them."</p>
-                                 <div className="text-right font-bold text-teal-400">- M. Chen, Restaurant Owner</div>
+                                 <p className="text-lg italic text-gray-300 mb-6">"I was skeptical, but AVA now handles 90% of our routine questions about our menu and hours. My staff at our Johnston St. location is less stressed and can focus on the customers in front of them."</p>
+                                 <div className="text-right font-bold text-teal-400">- M. Prejean, Restaurant Owner</div>
                               </div>
                          </div>
                      </div>
@@ -427,39 +640,11 @@
              </section>
         );
 
-        const DemoSection = ({ onCtaClick }) => (
-             <section id="experience-demo" className="py-16 md:py-24">
-                 <div className="container mx-auto px-4">
-                     <SectionTitle title="Experience AVA in Action" subtitle="Ask our demo how it can solve your biggest headaches."/>
-                     <div className="bg-gray-900/50 rounded-2xl p-4 md:p-8 grid grid-cols-1 lg:grid-cols-2 gap-8 items-center border border-gray-700">
-                          <div className="demo-text-content">
-                             <h3 className="text-2xl md:text-3xl font-bold text-teal-400 mb-4">Try the Live Demo</h3>
-                             <p className="text-gray-300 mb-6">This isn't a video—it's a real AI agent. Ask it anything a customer would. Test its knowledge. See for yourself how powerful it is.</p>
-                             <ul className="space-y-3 mb-8">
-                                 {["'What are your hours?'", "'Can you help a plumber?'", "'Do you offer a discount?'"].map(item =>(
-                                     <li key={item} className="flex items-center gap-3">
-                                         <span className="text-teal-400 text-xl font-bold">✓</span>
-                                         <span className="text-gray-300">Try asking: <strong className="text-white">{item}</strong></span>
-                                     </li>
-                                 ))}
-                             </ul>
-                             <button onClick={onCtaClick} className="cta-button inline-block bg-teal-500 text-gray-900 font-bold text-lg px-8 py-4 rounded-full transition-transform duration-300 hover:-translate-y-1 shadow-lg">
-                                Get Your Own AI Agent
-                             </button>
-                          </div>
-                          <div className="demo-iframe-container h-96 md:h-[500px] lg:h-[600px] rounded-xl overflow-hidden shadow-2xl">
-                              <iframe title="Chatbot Demo" src="https://www.chatbase.co/chatbot-iframe/BcoZ5tUDywN_6BEC5Xryj" className="w-full h-full border-2 border-indigo-500 rounded-xl"></iframe>
-                          </div>
-                     </div>
-                 </div>
-             </section>
-        );
-        
         const CtaSection = ({ onCtaClick }) => (
              <section id="signup" className="bg-gradient-to-r from-indigo-700 to-indigo-900 text-white text-center py-16 md:py-24">
                  <div className="container mx-auto px-4">
                      <h2 className="text-4xl md:text-5xl font-black mb-4">Don't Lose Another Customer.</h2>
-                     <p className="text-lg md:text-xl text-indigo-200 max-w-3xl mx-auto mb-8">Reclaim your time and grow your business with an employee that never sleeps. Secure your $99/mo founder's rate before all spots are gone.</p>
+                     <p className="text-lg md:text-xl text-indigo-200 max-w-3xl mx-auto mb-8">Reclaim your time and grow your business with an employee that never sleeps. Secure your $99/mo founder's rate before all slots are gone.</p>
                      <button onClick={onCtaClick} className="cta-button inline-block bg-teal-500 text-gray-900 font-bold text-lg px-12 py-4 rounded-full transition-transform duration-300 hover:-translate-y-1 shadow-lg pulse">
                          Claim My $99 Spot Now
                      </button>
@@ -471,8 +656,8 @@
               <footer className="bg-gray-900 text-center text-gray-400 py-8 border-t border-gray-800">
                   <div className="container mx-auto px-4">
                       <p className="font-bold text-white text-lg">Magnolia AI Experts</p>
-                      <p className="my-1">Empowering Businesses Everywhere</p>
-                      <p className="my-1">info@magnoliaaiexperts.com</p>
+                      <p className="my-1">Serving Lafayette & Acadiana</p>
+                      <p className="my-1">info@magnoliaaiexperts.com | (337) 555-0101</p>
                       <div className="mt-4">
                           <p>&copy; {new Date().getFullYear()} Magnolia AI Experts. All Rights Reserved.</p>
                       </div>
@@ -484,8 +669,18 @@
         const App = () => {
             const [activeSection, setActiveSection] = React.useState('home');
             const [isModalOpen, setIsModalOpen] = React.useState(false);
+            const [firebase, setFirebase] = React.useState(null);
 
-            const handleCtaClick = () => setIsModalOpen(true);
+            // Initialize Firebase on component mount
+            React.useEffect(() => {
+                if (window.firebaseServices) {
+                    window.firebaseServices().then(services => {
+                        if (services && !services.error) {
+                            setFirebase(services);
+                        }
+                    });
+                }
+            }, []);
 
             // Handle animations and section observer
             React.useEffect(() => {
@@ -494,7 +689,7 @@
                 }
                 
                 gsap.registerPlugin(ScrollTrigger);
-                gsap.utils.toArray('.feature-card, .step-card, .testimonial-card, .promotion-card, .demo-text-content, .demo-iframe-container').forEach(elem => {
+                gsap.utils.toArray('.feature-card, .step-card, .testimonial-card, .promotion-card, .demo-text-content').forEach(elem => {
                     gsap.from(elem, { 
                         scrollTrigger: { trigger: elem, start: 'top 85%', toggleActions: 'play none none none' },
                         opacity: 0, y: 50, duration: 0.8, ease: 'power3.out',
@@ -518,14 +713,18 @@
                 document.body.style.overflow = isModalOpen ? 'hidden' : 'unset';
             }, [isModalOpen]);
 
-            // General structured data - location removed
             const structuredData = {
                 "@context": "https://schema.org",
                 "@type": "Service",
                 "serviceType": "AI Virtual Agent Provider",
                 "provider": { "@type": "Organization", "name": "Magnolia AI Experts" },
-                "name": "AI Virtual Agent (AVA) for Local Businesses",
+                "name": "AI Virtual Agent (AVA) for Local Businesses in Lafayette, LA",
                 "description": seoData.description,
+                "areaServed": {
+                    "@type": "City",
+                    "name": "Lafayette",
+                    "address": { "@type": "PostalAddress", "addressRegion": "LA", "addressCountry": "US" }
+                },
                 "offers": {
                     "@type": "Offer",
                     "itemOffered": {
@@ -538,7 +737,6 @@
                     "priceSpecification": { "@type": "PriceSpecification", "price": "99", "priceCurrency": "USD", "valueAddedTaxIncluded": "false", "unitText": "MONTH" }
                 }
             };
-            // General FAQ data - location removed
             const faqStructuredData = {
                 "@context": "https://schema.org",
                 "@type": "FAQPage",
@@ -547,7 +745,7 @@
                     "acceptedAnswer": { "@type": "Answer", "text": "An AI Virtual Agent (like AVA) is a smart chatbot installed on your website that can understand customer questions and provide intelligent answers 24/7. It can capture leads, book appointments, and answer frequently asked questions, saving you time and money." }
                 },{
                     "@type": "Question", "name": "How much does AVA cost?",
-                    "acceptedAnswer": { "@type": "Answer", "text": "For a limited time, we are offering a founder's rate of $99 per month for new customers. This price is locked in for life." }
+                    "acceptedAnswer": { "@type": "Answer", "text": "For a limited time, we are offering a founder's rate of $99 per month for new customers in the Lafayette area. This price is locked in for life." }
                 },{
                     "@type": "Question", "name": "How long does it take to set up?",
                     "acceptedAnswer": { "@type": "Answer", "text": "Our expert team can typically have your custom AI Virtual Agent trained and implemented on your website within 3 business days."
@@ -561,19 +759,19 @@
                     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
                     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqStructuredData) }} />
 
-                    {isModalOpen && <SignUpModal onClose={() => setIsModalOpen(false)} />}
+                    {isModalOpen && <SignUpModal onClose={() => setIsModalOpen(false)} firebase={firebase} />}
                     
-                    <Navigation activeSection={activeSection} onCtaClick={handleCtaClick} />
+                    <Navigation activeSection={activeSection} onCtaClick={() => setIsModalOpen(true)} />
                     <main>
-                        <Header onCtaClick={handleCtaClick}/>
+                        <Header />
                         <FeaturesSection />
                         <PromoSection />
                         <HowItWorksSection />
                         <TestimonialsSection />
-                        <DemoSection onCtaClick={handleCtaClick} />
-                        <CtaSection onCtaClick={handleCtaClick} />
+                        <CtaSection onCtaClick={() => setIsModalOpen(true)} />
                     </main>
                     <Footer />
+                    <ChatbotWidget /> {/* Integrated Chatbot Widget */}
                 </div>
             );
         };
