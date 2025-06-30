@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <title>AI Virtual Agent for Your Local Businesses | AVA</title>
-    <meta name="description" content="Stop missing calls and losing leads in your area. AVA, your 24/7 AI Virtual Agent, captures every opportunity, answers customer questions, and books appointments. Get started for just $99.">
+    <title>AI Solutions for Business Growth | Magnolia AI Experts</title>
+    <meta name="description" content="Stop missing calls and losing leads. Our AI Virtual Agents and custom automation solutions capture every opportunity, answer customer questions, and streamline your operations.">
     
     <!-- React and Babel for JSX transpilation -->
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
@@ -149,17 +149,18 @@
 
         // --- SEO & Data ---
         const seoData = {
-            title: "AI Virtual Agent for Businesses in Lafayette, LA | AVA",
-            description: "Stop missing calls and losing leads in Lafayette. AVA, your 24/7 AI Virtual Agent, captures every opportunity, answers customer questions, and books appointments. Get started for just $99.",
-            keywords: "AI virtual agent, Lafayette chatbot, lead generation, 24/7 customer service, business automation, small business tools Louisiana",
+            title: "AI Solutions for Business Growth | Magnolia AI Experts",
+            description: "Stop missing calls and losing leads. Our AI Virtual Agents and custom automation solutions capture every opportunity, answer customer questions, and streamline your operations.",
+            keywords: "AI virtual agent, chatbot, lead generation, business automation, custom GPT, AI consulting",
             author: "Magnolia AI Experts",
-            url: "https://magnoliaaiexperts.com/ava-local",
+            url: "https://magnoliaaiexperts.com",
             image: "https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg", // Updated Image URL
         };
 
         const navLinks = [
             { name: 'Home', href: '#home' },
             { name: 'Why AVA?', href: '#features' },
+            { name: 'Services', href: '#services' },
             { name: 'The Offer', href: '#promo' },
             { name: 'How It Works', href: '#how-it-works' },
             { name: 'Results', href: '#testimonials' },
@@ -173,7 +174,6 @@
             React.useEffect(() => {
                 document.title = title;
                 document.querySelector('meta[name="description"]').setAttribute("content", description);
-                // In a full React app (like Next.js), you'd also manage keywords meta tag here.
             }, [title, description, keywords]);
             return null;
         };
@@ -205,7 +205,6 @@
             const handleSubmit = async (e) => {
                 e.preventDefault();
                 setError('');
-                // Basic form validation
                 if (!formData.name || !formData.email || !formData.industry || !formData.businessName || !formData.role) {
                     setError("Please fill in all fields.");
                     return;
@@ -214,7 +213,6 @@
                     setError("Please enter a valid email address.");
                     return;
                 }
-                // Check if Firebase services are available
                 if (!firebase) {
                     setError("Database connection is not ready. Please try again in a moment.");
                     setStatus('error');
@@ -224,12 +222,10 @@
                 setStatus('loading');
                 try {
                     const { db, appId, collection, addDoc } = firebase;
-                    // Define the path to the Firestore collection
                     const leadsCollection = collection(db, `artifacts/${appId}/public/data/leads`);
-                    // Add the form data as a new document
                     await addDoc(leadsCollection, {
                         ...formData,
-                        createdAt: new Date().toISOString(), // Use ISO string for consistency
+                        createdAt: new Date().toISOString(),
                     });
                     console.log("Lead successfully submitted.");
                     setStatus('success');
@@ -240,7 +236,6 @@
                 }
             };
             
-            // Prevents modal from closing when clicking inside the content
             const handleModalContentClick = (e) => e.stopPropagation();
 
             return (
@@ -311,14 +306,12 @@
             const chatBodyRef = React.useRef(null);
             const videoRef = React.useRef(null);
 
-            // Effect to autoscroll to the latest message
             React.useEffect(() => {
                 if (chatBodyRef.current) {
                     chatBodyRef.current.scrollTop = chatBodyRef.current.scrollHeight;
                 }
             }, [messages, isTyping]);
             
-            // Effect to set the video source for the avatar
             React.useEffect(() => {
                 if(videoRef.current) {
                     const darkModeVideoURL = 'https://pub-23f7e1f517734fc09a3807185400d484.r2.dev/AVA_Wave_And_Chill.mp4';
@@ -331,7 +324,7 @@
             const toggleWidget = () => {
                 setIsOpen(!isOpen);
                 if (!hasBeenOpened) {
-                    setHasBeenOpened(true); // Prevents pulsing animation after first open
+                    setHasBeenOpened(true);
                 }
             };
             
@@ -354,12 +347,10 @@
                 }
             };
             
-            // Simulates a bot response based on keywords
             const simulateBotResponse = (userMessage) => {
                 setIsTyping(true);
                 
                 setTimeout(() => {
-                    // Pre-defined responses for the demo
                     const responses = {
                         "default": "That's a great question! While I'm a demo, a fully trained AVA could give you a detailed answer. Can I help you get started with our $99 offer?",
                         "hello": "Hey there yourself! How's it going?",
@@ -374,7 +365,6 @@
                     const lowerCaseMessage = userMessage.toLowerCase();
                     let botMessage = responses.default;
 
-                    // Simple keyword matching for demo purposes
                     if (lowerCaseMessage.includes('help')) botMessage = responses.help;
                     else if (lowerCaseMessage.includes('hello') || lowerCaseMessage.includes('hi')) botMessage = responses.hello;
                     else if (lowerCaseMessage.includes('joke')) botMessage = responses.joke;
@@ -386,7 +376,7 @@
                     setIsTyping(false);
                     setMessages(prev => [...prev, { text: botMessage, sender: 'bot' }]);
 
-                }, 1500 + Math.random() * 500); // Simulate network delay
+                }, 1500 + Math.random() * 500);
             };
 
             return (
@@ -513,7 +503,7 @@
         const Header = () => {
              const typedRef = React.useRef(null);
              React.useEffect(() => {
-                 const options = { strings: ['Your 24/7 Virtual Receptionist.', 'Turn Missed Calls into Booked Jobs.', 'The AI Employee That Never Sleeps.', 'Built for Local Businesses.'], typeSpeed: 50, backSpeed: 30, backDelay: 2500, startDelay: 500, loop: true, smartBackspace: true, };
+                 const options = { strings: ['Your 24/7 Virtual Receptionist.', 'Turn Missed Calls into Booked Jobs.', 'The AI Employee That Never Sleeps.', 'Built for Your Business.'], typeSpeed: 50, backSpeed: 30, backDelay: 2500, startDelay: 500, loop: true, smartBackspace: true, };
                  const typed = new Typed(typedRef.current, options);
                  return () => typed.destroy();
              }, []);
@@ -528,7 +518,7 @@
                      <div className="relative z-20 container mx-auto px-4 py-20 md:py-32 lg:py-40 flex flex-col items-center">
                          <div className="absolute top-4 right-4 md:top-8 md:right-8 z-30">
                              <div className="bg-teal-500/90 text-white rounded-full w-28 h-28 flex flex-col items-center justify-center text-center shadow-lg pulse">
-                                 <span className="text-xs font-bold -mt-1">Special Rate</span>
+                                 <span className="text-xs font-bold -mt-1">AI Agent Offer</span>
                                  <span className="text-4xl font-black leading-none">$99</span>
                                  <span className="text-xs opacity-80">Locked In</span>
                              </div>
@@ -540,11 +530,11 @@
                              </a>
                          </div>
                          <div className="max-w-4xl">
-                             <h1 className="text-4xl md:text-5xl lg:text-6xl font-black mb-4 slide-up">Stop Losing Leads in Lafayette.</h1>
+                             <h1 className="text-4xl md:text-5xl lg:text-6xl font-black mb-4 slide-up">Stop Losing Leads.</h1>
                              <p className="text-teal-400 font-bold text-lg md:text-xl lg:text-2xl mb-6 min-h-[3em] slide-up">
                                  <span ref={typedRef}></span>
                              </p>
-                             <p className="text-base md:text-lg text-gray-200 max-w-2xl mx-auto mb-8 slide-up">For local business owners, every missed call is a lost opportunity. AVA works 24/7 to engage your customers, book appointments, and capture leads—turning every inquiry into revenue.</p>
+                             <p className="text-base md:text-lg text-gray-200 max-w-2xl mx-auto mb-8 slide-up">For business owners, every missed call is a lost opportunity. Our AI solutions work 24/7 to engage your customers, book appointments, and capture leads—turning every inquiry into revenue.</p>
                              <div className="flex flex-wrap justify-center gap-3 md:gap-4 slide-up">
                                  {['24/7 Lead Capture', 'Instant Answers', 'Saves You Time'].map(feature => (
                                      <div key={feature} className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-5 py-3">
@@ -561,7 +551,7 @@
         const FeaturesSection = () => (
              <section id="features" className="bg-gray-800 py-16 md:py-24">
                  <div className="container mx-auto px-4">
-                     <SectionTitle title="The AI Employee That Pays for Itself" subtitle="AVA does the repetitive work so you can focus on your craft." />
+                     <SectionTitle title="The AI Employee That Pays for Itself" subtitle="Our AI Virtual Agent does the repetitive work so you can focus on your craft." />
                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                          {[
                              { icon: '💰', title: 'Never Miss a Sale', description: "AVA qualifies leads and books appointments 24/7, even when you're on a job or asleep.", aria: 'Money Bag Icon' },
@@ -580,13 +570,76 @@
              </section>
         );
 
+        const ServicesSection = () => (
+            <section id="services" className="bg-gray-900 py-16 md:py-24">
+                <div className="container mx-auto px-4">
+                    <SectionTitle title="Our AI Solutions & Services" subtitle="We build custom AI systems to solve your biggest business challenges." />
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        {[
+                            { 
+                                icon: '🤖', 
+                                title: 'Custom GPT Development', 
+                                description: 'Want a specialized AI chatbot? We build and train custom GPT models on your data for expert-level conversations.',
+                                linkText: 'Request a Custom Build',
+                                linkHref: '#signup'
+                            },
+                            { 
+                                icon: '⚙️', 
+                                title: 'AI Automation Services', 
+                                description: 'Need to streamline operations? Book an AI Discovery Session to explore custom workflows and automation opportunities.',
+                                linkText: 'Book a Discovery Session',
+                                linkHref: '#signup'
+                            },
+                            { 
+                                icon: '📈', 
+                                title: 'Lead-to-Claim T.R.A.C.E. Ecosystem', 
+                                description: 'A specialized system for roofers to track leads from initial contact to a paid claim, powered by AI.',
+                                linkText: 'Explore the Ecosystem',
+                                linkHref: '#signup'
+                            },
+                            { 
+                                icon: '🌐', 
+                                title: 'Lead Generation Chatbot Pages', 
+                                description: 'Get our flagship AVA chatbot integrated into a high-converting landing page built to turn visitors into qualified leads.',
+                                linkText: 'Get Your Landing Page',
+                                linkHref: '#signup'
+                            },
+                            { 
+                                icon: '🤝', 
+                                title: 'AI Integration Consulting', 
+                                description: 'Not sure where to start with AI? Our experts will help you identify opportunities and create a roadmap for success.',
+                                linkText: 'Get Strategic Advice',
+                                linkHref: '#signup'
+                            },
+                            { 
+                                icon: '🎓', 
+                                title: 'Workforce Education (PromptCraft)', 
+                                description: 'Empower your team with the skills to use AI effectively. Our PromptCraft training enhances productivity and innovation.',
+                                linkText: 'Start Training Your Team',
+                                linkHref: '#signup'
+                            },
+                        ].map((service) => (
+                            <div key={service.title} className="service-card bg-gray-800 p-8 rounded-xl shadow-lg flex flex-col transition-all duration-300 hover:-translate-y-2 hover:shadow-indigo-500/20 border-2 border-gray-700 hover:border-teal-500">
+                                <div className="text-4xl mb-4" role="img">{service.icon}</div>
+                                <h3 className="text-xl font-bold text-white mb-2">{service.title}</h3>
+                                <p className="text-gray-400 flex-grow">{service.description}</p>
+                                <a href={service.linkHref} className="mt-6 inline-block text-teal-400 font-semibold hover:text-teal-300 self-start">
+                                   {service.linkText} &rarr;
+                                </a>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+        );
+
         const PromoSection = () => (
-             <section id="promo" className="bg-gray-900 py-16">
+             <section id="promo" className="bg-gray-800 py-16">
                   <div className="container mx-auto px-4">
                       <div className="promotion-card bg-gradient-to-br from-gray-700 to-gray-800 text-center p-8 md:p-12 rounded-2xl border border-indigo-500 shadow-xl max-w-4xl mx-auto">
-                          <h2 className="text-3xl md:text-4xl font-bold text-teal-400 mb-3">Limited-Time Founder's Rate</h2>
+                          <h2 className="text-3xl md:text-4xl font-bold text-teal-400 mb-3">Limited-Time Founder's Rate for AVA</h2>
                           <p className="text-lg text-yellow-300 font-bold mb-4">Only 7 spots remaining at this price!</p>
-                          <p className="text-base md:text-lg text-gray-200">To celebrate our launch, the first 20 local businesses to sign up get our complete AI Virtual Agent package for just <span className="font-bold text-white text-xl">$99/mo</span>. This rate is locked in forever. Regular price: <s>$249/mo</s>.</p>
+                          <p className="text-base md:text-lg text-gray-200">To celebrate our launch, the first 20 businesses to sign up for our AI Virtual Agent (AVA) get the complete package for just <span className="font-bold text-white text-xl">$99/mo</span>. This rate is locked in forever. Regular price: <s>$249/mo</s>.</p>
                       </div>
                   </div>
              </section>
@@ -595,7 +648,7 @@
         const HowItWorksSection = () => (
              <section id="how-it-works" className="py-16 md:py-24">
                   <div className="container mx-auto px-4">
-                     <SectionTitle title="Go Live This Week" />
+                     <SectionTitle title="Go Live This Week" subtitle="Our process for launching your AI Virtual Agent." />
                      <div className="relative flex flex-col md:flex-row justify-center items-stretch gap-8 md:gap-16">
                           <div className="hidden md:block absolute top-1/2 left-0 w-full h-0.5 border-t-2 border-dashed border-gray-600 -translate-y-1/2"></div>
                           {[
@@ -617,21 +670,21 @@
         );
 
         const TestimonialsSection = () => (
-             <section id="testimonials" className="bg-gray-800 py-16 md:py-24">
+             <section id="testimonials" className="bg-gray-900 py-16 md:py-24">
                  <div className="container mx-auto px-4">
                      <SectionTitle title="Trusted by Businesses Like Yours" />
                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-start">
-                         <div className="testimonial-card relative bg-gray-900 p-8 rounded-xl shadow-lg border border-gray-700">
+                         <div className="testimonial-card relative bg-gray-800 p-8 rounded-xl shadow-lg border border-gray-700">
                               <div className="absolute top-4 left-6 text-7xl font-serif text-indigo-500/20 -z-0">"</div>
                               <div className="relative z-10">
-                                 <p className="text-lg italic text-gray-300 mb-6">"In the first month, we saw a <span className='font-bold text-white'>30% increase in booked appointments</span> because AVA captured all the after-hours website leads we used to miss. It's a game-changer for our Lafayette office."</p>
+                                 <p className="text-lg italic text-gray-300 mb-6">"In the first month, we saw a <span className='font-bold text-white'>30% increase in booked appointments</span> because AVA captured all the after-hours website leads we used to miss. It's a total game-changer for our office."</p>
                                  <div className="text-right font-bold text-teal-400">- J. Broussard, Home Services</div>
                               </div>
                          </div>
-                         <div className="testimonial-card relative bg-gray-900 p-8 rounded-xl shadow-lg border border-gray-700">
+                         <div className="testimonial-card relative bg-gray-800 p-8 rounded-xl shadow-lg border border-gray-700">
                               <div className="absolute top-4 left-6 text-7xl font-serif text-indigo-500/20 -z-0">"</div>
                               <div className="relative z-10">
-                                 <p className="text-lg italic text-gray-300 mb-6">"I was skeptical, but AVA now handles 90% of our routine questions about our menu and hours. My staff at our Johnston St. location is less stressed and can focus on the customers in front of them."</p>
+                                 <p className="text-lg italic text-gray-300 mb-6">"I was skeptical, but AVA now handles 90% of our routine questions about our menu and hours. My staff is less stressed and can focus on the customers in front of them."</p>
                                  <div className="text-right font-bold text-teal-400">- M. Prejean, Restaurant Owner</div>
                               </div>
                          </div>
@@ -644,9 +697,9 @@
              <section id="signup" className="bg-gradient-to-r from-indigo-700 to-indigo-900 text-white text-center py-16 md:py-24">
                  <div className="container mx-auto px-4">
                      <h2 className="text-4xl md:text-5xl font-black mb-4">Don't Lose Another Customer.</h2>
-                     <p className="text-lg md:text-xl text-indigo-200 max-w-3xl mx-auto mb-8">Reclaim your time and grow your business with an employee that never sleeps. Secure your $99/mo founder's rate before all slots are gone.</p>
+                     <p className="text-lg md:text-xl text-indigo-200 max-w-3xl mx-auto mb-8">Reclaim your time and grow your business with an employee that never sleeps. Secure your special offer or book a discovery call today.</p>
                      <button onClick={onCtaClick} className="cta-button inline-block bg-teal-500 text-gray-900 font-bold text-lg px-12 py-4 rounded-full transition-transform duration-300 hover:-translate-y-1 shadow-lg pulse">
-                         Claim My $99 Spot Now
+                         Get Started Now
                      </button>
                  </div>
              </section>
@@ -656,8 +709,8 @@
               <footer className="bg-gray-900 text-center text-gray-400 py-8 border-t border-gray-800">
                   <div className="container mx-auto px-4">
                       <p className="font-bold text-white text-lg">Magnolia AI Experts</p>
-                      <p className="my-1">Serving Lafayette & Acadiana</p>
-                      <p className="my-1">info@magnoliaaiexperts.com | (337) 555-0101</p>
+                      <p className="my-1">Your Partner in AI-Powered Growth</p>
+                      <p className="my-1">info@magnoliaaiexperts.com | (555) 555-5555</p>
                       <div className="mt-4">
                           <p>&copy; {new Date().getFullYear()} Magnolia AI Experts. All Rights Reserved.</p>
                       </div>
@@ -689,7 +742,7 @@
                 }
                 
                 gsap.registerPlugin(ScrollTrigger);
-                gsap.utils.toArray('.feature-card, .step-card, .testimonial-card, .promotion-card, .demo-text-content').forEach(elem => {
+                gsap.utils.toArray('.feature-card, .service-card, .step-card, .testimonial-card, .promotion-card').forEach(elem => {
                     gsap.from(elem, { 
                         scrollTrigger: { trigger: elem, start: 'top 85%', toggleActions: 'play none none none' },
                         opacity: 0, y: 50, duration: 0.8, ease: 'power3.out',
@@ -716,15 +769,10 @@
             const structuredData = {
                 "@context": "https://schema.org",
                 "@type": "Service",
-                "serviceType": "AI Virtual Agent Provider",
+                "serviceType": "AI Virtual Agent and Automation Provider",
                 "provider": { "@type": "Organization", "name": "Magnolia AI Experts" },
-                "name": "AI Virtual Agent (AVA) for Local Businesses in Lafayette, LA",
+                "name": "AI Solutions for Business Growth",
                 "description": seoData.description,
-                "areaServed": {
-                    "@type": "City",
-                    "name": "Lafayette",
-                    "address": { "@type": "PostalAddress", "addressRegion": "LA", "addressCountry": "US" }
-                },
                 "offers": {
                     "@type": "Offer",
                     "itemOffered": {
@@ -744,11 +792,11 @@
                     "@type": "Question", "name": "What is an AI Virtual Agent?",
                     "acceptedAnswer": { "@type": "Answer", "text": "An AI Virtual Agent (like AVA) is a smart chatbot installed on your website that can understand customer questions and provide intelligent answers 24/7. It can capture leads, book appointments, and answer frequently asked questions, saving you time and money." }
                 },{
-                    "@type": "Question", "name": "How much does AVA cost?",
-                    "acceptedAnswer": { "@type": "Answer", "text": "For a limited time, we are offering a founder's rate of $99 per month for new customers in the Lafayette area. This price is locked in for life." }
+                    "@type": "Question", "name": "What other AI services do you offer?",
+                    "acceptedAnswer": { "@type": "Answer", "text": "Beyond our AVA chatbot, we offer a range of AI services including custom GPT development, AI automation for business workflows, AI integration consulting, and workforce education through our PromptCraft program." }
                 },{
                     "@type": "Question", "name": "How long does it take to set up?",
-                    "acceptedAnswer": { "@type": "Answer", "text": "Our expert team can typically have your custom AI Virtual Agent trained and implemented on your website within 3 business days."
+                    "acceptedAnswer": { "@type": "Answer", "text": "Our expert team can typically have your custom AI Virtual Agent trained and implemented on your website within 3 business days. Custom projects have a variable timeline based on complexity."
                     }
                 }]
             };
@@ -765,13 +813,14 @@
                     <main>
                         <Header />
                         <FeaturesSection />
+                        <ServicesSection />
                         <PromoSection />
                         <HowItWorksSection />
                         <TestimonialsSection />
                         <CtaSection onCtaClick={() => setIsModalOpen(true)} />
                     </main>
                     <Footer />
-                    <ChatbotWidget /> {/* Integrated Chatbot Widget */}
+                    <ChatbotWidget />
                 </div>
             );
         };
