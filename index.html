@@ -99,7 +99,6 @@
     
     <!-- Firebase SDK Mock -->
     <script type="module">
-        // In a real application, you would replace these mock values with your actual Firebase configuration.
         const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
             apiKey: "AIzaSy_FAKE_API_KEY",
             authDomain: "your-project-id.firebaseapp.com",
@@ -112,28 +111,22 @@
 
         window.firebaseServices = async () => {
             console.log("Firebase services mock loaded. Lead data will be logged to the console.");
-            // This is a simplified mock of Firebase for demonstration.
             const mockDb = {
-                // Mocks the collection function
                 collection: (path) => ({
-                    // Mocks the addDoc function
                     addDoc: (data) => {
                         console.log(`Mock Firestore: Adding doc to '${path}':`, data);
-                        // Simulate a successful database write
                         return Promise.resolve({ id: `mock-doc-${Date.now()}` });
                     }
                 })
             };
-            const mockApp = {}; // Mock app object
-            const mockAuth = {}; // Mock auth object
+            const mockApp = {};
+            const mockAuth = {};
 
-            // Make the mocked services and helper functions available globally for the React app
             return { 
                 app: mockApp, 
                 auth: mockAuth, 
                 db: mockDb, 
                 appId, 
-                // These functions mimic the real Firebase v9 SDK structure
                 collection: (db, path) => db.collection(path), 
                 addDoc: (collectionRef, data) => collectionRef.addDoc(data) 
             };
@@ -151,25 +144,22 @@
         const seoData = {
             title: "AI Solutions for Business Growth | Magnolia AI Experts",
             description: "Stop missing calls and losing leads. Our AI Virtual Agents and custom automation solutions capture every opportunity, answer customer questions, and streamline your operations.",
-            keywords: "AI virtual agent, chatbot, lead generation, business automation, custom GPT, AI consulting",
+            keywords: "AI virtual agent, chatbot, lead generation, business automation, custom GPT, AI consulting, MLOps, AI infrastructure",
             author: "Magnolia AI Experts",
             url: "https://magnoliaaiexperts.com",
-            image: "https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg", // Updated Image URL
+            image: "https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg",
         };
 
         const navLinks = [
             { name: 'Home', href: '#home' },
             { name: 'Why AVA?', href: '#features' },
             { name: 'Services', href: '#services' },
+            { name: 'Advanced Solutions', href: '#advanced-solutions' },
             { name: 'The Offer', href: '#promo' },
-            { name: 'How It Works', href: '#how-it-works' },
-            { name: 'Results', href: '#testimonials' },
             { name: 'Get Started', href: '#signup', isButton: true },
         ];
         
         // --- Reusable Components ---
-
-        // Component to manage the document's head for SEO
         const Head = ({ title, description, keywords }) => {
             React.useEffect(() => {
                 document.title = title;
@@ -178,7 +168,6 @@
             return null;
         };
 
-        // Standardized section title component
         const SectionTitle = ({ title, subtitle, className }) => (
             <div className={classNames("text-center mb-10 md:mb-16", className)}>
                 <h2 className="text-3xl md:text-4xl font-black text-white relative inline-block pb-3 mb-4">
@@ -189,12 +178,11 @@
             </div>
         );
 
-        // Sign-up modal with form handling and Firebase integration
         const SignUpModal = ({ onClose, firebase }) => {
             const [formData, setFormData] = React.useState({
-                name: '', email: '', industry: '', businessName: '', role: ''
+                name: '', email: '', industry: '', businessName: '', role: '', inquiryType: 'AVA Offer'
             });
-            const [status, setStatus] = React.useState('idle'); // idle, loading, success, error
+            const [status, setStatus] = React.useState('idle');
             const [error, setError] = React.useState('');
 
             const handleChange = (e) => {
@@ -205,8 +193,8 @@
             const handleSubmit = async (e) => {
                 e.preventDefault();
                 setError('');
-                if (!formData.name || !formData.email || !formData.industry || !formData.businessName || !formData.role) {
-                    setError("Please fill in all fields.");
+                if (!formData.name || !formData.email || !formData.industry) {
+                    setError("Please fill in all required fields.");
                     return;
                 }
                 if (!/\S+@\S+\.\S+/.test(formData.email)) {
@@ -214,7 +202,7 @@
                     return;
                 }
                 if (!firebase) {
-                    setError("Database connection is not ready. Please try again in a moment.");
+                    setError("Database connection is not ready. Please try again.");
                     setStatus('error');
                     return;
                 }
@@ -254,37 +242,39 @@
                                 <div className="w-16 h-16 text-teal-400 mx-auto mb-4">
                                      <svg className="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                 </div>
-                                <p className="text-2xl text-teal-300 font-semibold">Welcome Aboard!</p>
-                                <p className="text-gray-300 mt-2">Your information has been submitted. We'll be in touch shortly to configure your AI.</p>
+                                <p className="text-2xl text-teal-300 font-semibold">Thank You!</p>
+                                <p className="text-gray-300 mt-2">Your information has been submitted. We'll be in touch shortly.</p>
                                 <button onClick={onClose} className="mt-6 px-6 py-2 bg-teal-600 text-white font-semibold rounded-lg shadow-md hover:bg-teal-700">Close</button>
                             </div>
                         ) : (
                             <>
                                 <div className="text-center mb-6">
-                                    <h2 className="text-2xl sm:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-teal-300 to-indigo-400">Claim Your Founder's Rate</h2>
-                                    <p className="text-gray-400 mt-2">Secure your spot and we'll start building your custom AI agent.</p>
+                                    <h2 className="text-2xl sm:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-teal-300 to-indigo-400">Get Started with AI</h2>
+                                    <p className="text-gray-400 mt-2">Tell us a bit about your needs to get started.</p>
                                 </div>
                                 <form onSubmit={handleSubmit} className="grid gap-5">
                                     {error && <div className="text-red-400 bg-red-900/60 p-3 rounded-md text-sm border border-red-700">{error}</div>}
                                     
-                                    <input type="text" name="name" placeholder="Full Name (e.g., John Boudreaux)" required value={formData.name} onChange={handleChange} className="w-full px-4 py-3 bg-gray-800 text-gray-100 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-gray-400" />
-                                    <input type="email" name="email" placeholder="Email Address (e.g., john.b@example.com)" required value={formData.email} onChange={handleChange} className="w-full px-4 py-3 bg-gray-800 text-gray-100 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-gray-400" />
+                                    <input type="text" name="name" placeholder="Full Name *" required value={formData.name} onChange={handleChange} className="w-full px-4 py-3 bg-gray-800 text-gray-100 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-gray-400" />
+                                    <input type="email" name="email" placeholder="Email Address *" required value={formData.email} onChange={handleChange} className="w-full px-4 py-3 bg-gray-800 text-gray-100 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-gray-400" />
+                                    <input type="text" name="businessName" placeholder="Business Name" value={formData.businessName} onChange={handleChange} className="w-full px-4 py-3 bg-gray-800 text-gray-100 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-gray-400" />
                                     <select name="industry" required value={formData.industry} onChange={handleChange} className="w-full px-4 py-3 bg-gray-800 text-gray-100 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                                        <option value="" disabled>Select Your Industry...</option>
-                                        <option value="home_services">Home Services (Plumbing, HVAC, etc.)</option>
-                                        <option value="oil_and_gas">Oil and Gas</option>
+                                        <option value="" disabled>Select Your Industry *</option>
+                                        <option value="home_services">Home Services</option>
+                                        <option value="manufacturing">Manufacturing</option>
+                                        <option value="healthcare">Healthcare</option>
+                                        <option value="finance">Financial Services</option>
                                         <option value="real_estate">Real Estate</option>
-                                        <option value="restaurants">Restaurants</option>
-                                        <option value="medical">Medical & Dental</option>
-                                        <option value="legal">Legal Services</option>
-                                        <option value="automotive">Automotive</option>
                                         <option value="other">Other</option>
                                     </select>
-                                    <input type="text" name="businessName" placeholder="Business Name" required value={formData.businessName} onChange={handleChange} className="w-full px-4 py-3 bg-gray-800 text-gray-100 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-gray-400" />
-                                    <input type="text" name="role" placeholder="Your Role (e.g., Owner, Manager)" required value={formData.role} onChange={handleChange} className="w-full px-4 py-3 bg-gray-800 text-gray-100 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-gray-400" />
+                                    <select name="inquiryType" value={formData.inquiryType} onChange={handleChange} className="w-full px-4 py-3 bg-gray-800 text-gray-100 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                        <option value="AVA Offer">AVA $99 Offer</option>
+                                        <option value="Advanced Solutions">Advanced Solutions Inquiry</option>
+                                        <option value="General Inquiry">General Inquiry</option>
+                                    </select>
                                     
-                                    <button type="submit" disabled={status === 'loading' || !firebase} className="w-full px-4 py-3 text-lg bg-teal-500 text-gray-900 font-bold rounded-lg shadow-md hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-75 disabled:opacity-60 disabled:cursor-not-allowed transition-colors duration-150">
-                                        {status === 'loading' ? 'Securing Your Spot...' : 'Claim My $99 Spot Now'}
+                                    <button type="submit" disabled={status === 'loading'} className="w-full px-4 py-3 text-lg bg-teal-500 text-gray-900 font-bold rounded-lg shadow-md hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-75 disabled:opacity-60 disabled:cursor-not-allowed transition-colors duration-150">
+                                        {status === 'loading' ? 'Submitting...' : 'Submit Inquiry'}
                                     </button>
                                 </form>
                             </>
@@ -294,11 +284,10 @@
             );
         };
         
-        // Chatbot Widget Component
         const ChatbotWidget = () => {
             const [isOpen, setIsOpen] = React.useState(false);
             const [messages, setMessages] = React.useState([
-                { text: "Hey there! I'm AVA, your friendly assistant from Magnolia AI Experts. How can I help you, cher?", sender: 'bot' }
+                { text: "Hey there! I'm AVA, your friendly assistant from Magnolia AI Experts. How can I help you?", sender: 'bot' }
             ]);
             const [inputValue, setInputValue] = React.useState('');
             const [isTyping, setIsTyping] = React.useState(false);
@@ -328,10 +317,6 @@
                 }
             };
             
-            const handleInputChange = (e) => {
-                setInputValue(e.target.value);
-            };
-
             const handleSendMessage = () => {
                 const messageText = inputValue.trim();
                 if (messageText) {
@@ -342,24 +327,17 @@
             };
 
             const handleKeyUp = (event) => {
-                if (event.key === 'Enter') {
-                    handleSendMessage();
-                }
+                if (event.key === 'Enter') handleSendMessage();
             };
             
             const simulateBotResponse = (userMessage) => {
                 setIsTyping(true);
-                
                 setTimeout(() => {
                     const responses = {
-                        "default": "That's a great question! While I'm a demo, a fully trained AVA could give you a detailed answer. Can I help you get started with our $99 offer?",
-                        "hello": "Hey there yourself! How's it going?",
+                        "default": "That's a great question! For more detailed inquiries about our advanced solutions, I'd recommend booking a consultation. Can I help you get started with our $99 AVA offer?",
+                        "hello": "Hey there yourself! How can I help you today?",
                         "help": "Sure thing! You can ask me about our services, pricing, or how to get started. What's on your mind?",
-                        "joke": "Why don't crawfish share? Because they're shellfish! Ha!",
-                        "thanks": "You're very welcome! Let me know if you need anything else, yeah?",
-                        "price": "We have a special Founder's Rate right now for just $99/mo, locked in for life! It's a great deal to get started.",
-                        "hours": "We work for you 24/7! Our human team at Magnolia AI Experts is available during standard business hours to get you set up.",
-                        "plumber": "Absolutely! AVA is perfect for plumbers. It can book appointments for leaky faucets or clogged drains, even when you're on a job. You'll never miss a lead."
+                        "price": "Our flagship AI Virtual Agent (AVA) starts at a special rate of just $99/mo. For our advanced enterprise solutions, we provide custom quotes after a discovery call. Would you like to book one?",
                     };
 
                     const lowerCaseMessage = userMessage.toLowerCase();
@@ -367,23 +345,16 @@
 
                     if (lowerCaseMessage.includes('help')) botMessage = responses.help;
                     else if (lowerCaseMessage.includes('hello') || lowerCaseMessage.includes('hi')) botMessage = responses.hello;
-                    else if (lowerCaseMessage.includes('joke')) botMessage = responses.joke;
-                    else if (lowerCaseMessage.includes('price') || lowerCaseMessage.includes('cost') || lowerCaseMessage.includes('discount')) botMessage = responses.price;
-                    else if (lowerCaseMessage.includes('hour')) botMessage = responses.hours;
-                    else if (lowerCaseMessage.includes('plumber') || lowerCaseMessage.includes('home service')) botMessage = responses.plumber;
-                    else if (lowerCaseMessage.includes('thank')) botMessage = responses.thanks;
-
+                    else if (lowerCaseMessage.includes('price') || lowerCaseMessage.includes('cost') || lowerCaseMessage.includes('pricing')) botMessage = responses.price;
+                    
                     setIsTyping(false);
                     setMessages(prev => [...prev, { text: botMessage, sender: 'bot' }]);
-
                 }, 1500 + Math.random() * 500);
             };
 
             return (
                 <div id="ava-chatbot-widget" className={classNames('ava-widget-container', !isOpen && 'closed')}>
-                    {/* Chat Window */}
                     <div id="ava-chat-window" className="ava-chat-panel flex flex-col rounded-2xl shadow-2xl overflow-hidden border border-gray-700">
-                        {/* Header */}
                         <div className="flex items-center justify-between p-4 bg-teal-600 text-white">
                             <div className="flex items-center space-x-3">
                                 <div className="relative">
@@ -399,16 +370,10 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
                             </button>
                         </div>
-                        
-                        {/* Message Body */}
                         <div ref={chatBodyRef} className="chat-body flex-1 p-4 space-y-4 overflow-y-auto">
                             {messages.map((msg, index) => (
                                 <div key={index} className={classNames('flex', msg.sender === 'user' ? 'justify-end' : 'justify-start')}>
-                                    <div className={classNames('chat-bubble p-3 rounded-lg', 
-                                        msg.sender === 'user' 
-                                            ? 'bg-indigo-600 text-white rounded-br-none'
-                                            : 'bg-gray-700 text-gray-200 rounded-bl-none'
-                                    )}>
+                                    <div className={classNames('chat-bubble p-3 rounded-lg', msg.sender === 'user' ? 'bg-indigo-600 text-white rounded-br-none' : 'bg-gray-700 text-gray-200 rounded-bl-none')}>
                                         <p>{msg.text}</p>
                                     </div>
                                 </div>
@@ -423,50 +388,17 @@
                                 </div>
                             )}
                         </div>
-                        
-                        {/* Footer Input */}
                         <div className="p-4 bg-gray-800 border-t border-gray-700">
                             <div className="flex items-center space-x-2">
-                                <input 
-                                    type="text" 
-                                    value={inputValue}
-                                    onChange={handleInputChange}
-                                    onKeyUp={handleKeyUp}
-                                    placeholder="Type a message..." 
-                                    className="flex-1 w-full px-4 py-2 bg-gray-600 text-white placeholder-gray-400 border border-transparent rounded-full focus:outline-none focus:ring-2 focus:ring-teal-500"
-                                />
-                                <button 
-                                    onClick={handleSendMessage} 
-                                    aria-label="Send Message" 
-                                    disabled={!inputValue.trim()}
-                                    className="p-3 bg-teal-500 hover:bg-teal-600 text-gray-900 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                                >
+                                <input type="text" value={inputValue} onChange={(e) => setInputValue(e.target.value)} onKeyUp={handleKeyUp} placeholder="Type a message..." className="flex-1 w-full px-4 py-2 bg-gray-600 text-white placeholder-gray-400 border border-transparent rounded-full focus:outline-none focus:ring-2 focus:ring-teal-500" />
+                                <button onClick={handleSendMessage} aria-label="Send Message" disabled={!inputValue.trim()} className="p-3 bg-teal-500 hover:bg-teal-600 text-gray-900 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 disabled:opacity-50 disabled:cursor-not-allowed">
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 transform rotate-45" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
                                 </button>
                             </div>
                         </div>
                     </div>
-
-                    {/* Floating Avatar Toggle Button */}
-                     <button 
-                        id="ava-widget-toggle-btn"
-                        onClick={toggleWidget} 
-                        aria-label="Open Chat" 
-                        aria-expanded={isOpen}
-                        className={classNames(
-                            'w-24 h-24 bg-transparent rounded-full flex items-center justify-center overflow-hidden focus:outline-none focus:ring-4 focus:ring-teal-500 focus:ring-opacity-50',
-                            !isOpen && !hasBeenOpened && 'pulsing-chat'
-                         )}
-                     >
-                        <video 
-                            ref={videoRef}
-                            id="avatar-video"
-                            className="w-full h-full object-cover"
-                            autoPlay
-                            muted
-                            playsInline
-                        >
-                        </video>
+                     <button id="ava-widget-toggle-btn" onClick={toggleWidget} aria-label="Open Chat" aria-expanded={isOpen} className={classNames('w-24 h-24 bg-transparent rounded-full flex items-center justify-center overflow-hidden focus:outline-none focus:ring-4 focus:ring-teal-500 focus:ring-opacity-50', !isOpen && !hasBeenOpened && 'pulsing-chat')}>
+                        <video ref={videoRef} id="avatar-video" className="w-full h-full object-cover" autoPlay muted playsInline></video>
                     </button>
                 </div>
             );
@@ -479,18 +411,7 @@
                     <ul className="flex justify-center items-center flex-wrap gap-x-2 md:gap-x-6 gap-y-1">
                         {navLinks.map((link) => (
                             <li key={link.name}>
-                                <a 
-                                    href={link.isButton ? undefined : link.href}
-                                    onClick={link.isButton ? onCtaClick : null}
-                                    style={{ cursor: 'pointer' }}
-                                    className={classNames(
-                                        'block px-2 py-2 md:px-3 text-sm md:text-base font-bold rounded-md transition-all duration-300 whitespace-nowrap',
-                                        activeSection === (link.href && link.href.substring(1)) && !link.isButton
-                                            ? 'bg-indigo-600 text-white shadow-lg'
-                                            : 'text-gray-300 hover:bg-gray-700 hover:text-white',
-                                        link.isButton && 'bg-teal-500 text-gray-900 hover:bg-teal-400 shadow-lg'
-                                    )}
-                                >
+                                <a href={link.isButton ? undefined : link.href} onClick={link.isButton ? onCtaClick : null} style={{ cursor: 'pointer' }} className={classNames('block px-2 py-2 md:px-3 text-sm md:text-base font-bold rounded-md transition-all duration-300 whitespace-nowrap', activeSection === (link.href && link.href.substring(1)) && !link.isButton ? 'bg-indigo-600 text-white shadow-lg' : 'text-gray-300 hover:bg-gray-700 hover:text-white', link.isButton && 'bg-teal-500 text-gray-900 hover:bg-teal-400 shadow-lg')}>
                                     {link.name}
                                 </a>
                             </li>
@@ -570,133 +491,126 @@
              </section>
         );
 
-        const ServicesSection = () => (
+        const ServicesSection = ({ onCtaClick }) => (
             <section id="services" className="bg-gray-900 py-16 md:py-24">
                 <div className="container mx-auto px-4">
-                    <SectionTitle title="Our AI Solutions & Services" subtitle="We build custom AI systems to solve your biggest business challenges." />
+                    <SectionTitle title="Our Core AI Services" subtitle="We build custom AI systems to solve your biggest business challenges." />
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {[
-                            { 
-                                icon: '🤖', 
-                                title: 'Custom GPT Development', 
-                                description: 'Want a specialized AI chatbot? We build and train custom GPT models on your data for expert-level conversations.',
-                                linkText: 'Request a Custom Build',
-                                linkHref: '#signup'
-                            },
-                            { 
-                                icon: '⚙️', 
-                                title: 'AI Automation Services', 
-                                description: 'Need to streamline operations? Book an AI Discovery Session to explore custom workflows and automation opportunities.',
-                                linkText: 'Book a Discovery Session',
-                                linkHref: '#signup'
-                            },
-                            { 
-                                icon: '📈', 
-                                title: 'Lead-to-Claim T.R.A.C.E. Ecosystem', 
-                                description: 'A specialized system for roofers to track leads from initial contact to a paid claim, powered by AI.',
-                                linkText: 'Explore the Ecosystem',
-                                linkHref: '#signup'
-                            },
-                            { 
-                                icon: '🌐', 
-                                title: 'Lead Generation Chatbot Pages', 
-                                description: 'Get our flagship AVA chatbot integrated into a high-converting landing page built to turn visitors into qualified leads.',
-                                linkText: 'Get Your Landing Page',
-                                linkHref: '#signup'
-                            },
-                            { 
-                                icon: '🤝', 
-                                title: 'AI Integration Consulting', 
-                                description: 'Not sure where to start with AI? Our experts will help you identify opportunities and create a roadmap for success.',
-                                linkText: 'Get Strategic Advice',
-                                linkHref: '#signup'
-                            },
-                            { 
-                                icon: '🎓', 
-                                title: 'Workforce Education (PromptCraft)', 
-                                description: 'Empower your team with the skills to use AI effectively. Our PromptCraft training enhances productivity and innovation.',
-                                linkText: 'Start Training Your Team',
-                                linkHref: '#signup'
-                            },
+                            { icon: '🤖', title: 'Custom GPT Development', description: 'Want a specialized AI chatbot? We build and train custom GPT models on your data for expert-level conversations.' },
+                            { icon: '⚙️', title: 'AI Automation Services', description: 'Need to streamline operations? Book an AI Discovery Session to explore custom workflows and automation opportunities.' },
+                            { icon: '📈', title: 'Lead-to-Claim T.R.A.C.E. Ecosystem', description: 'A specialized system for roofers to track leads from initial contact to a paid claim, powered by AI.' },
+                            { icon: '🌐', title: 'Lead Generation Chatbot Pages', description: 'Get our flagship AVA chatbot integrated into a high-converting landing page built to turn visitors into qualified leads.' },
+                            { icon: '🤝', title: 'AI Integration Consulting', description: 'Not sure where to start with AI? Our experts will help you identify opportunities and create a roadmap for success.' },
+                            { icon: '🎓', title: 'Custom Tailored Local AI Solutions', description: 'Empower your team with custom AI tools and the skills to use them effectively, enhancing productivity and innovation.' },
                         ].map((service) => (
                             <div key={service.title} className="service-card bg-gray-800 p-8 rounded-xl shadow-lg flex flex-col transition-all duration-300 hover:-translate-y-2 hover:shadow-indigo-500/20 border-2 border-gray-700 hover:border-teal-500">
                                 <div className="text-4xl mb-4" role="img">{service.icon}</div>
                                 <h3 className="text-xl font-bold text-white mb-2">{service.title}</h3>
                                 <p className="text-gray-400 flex-grow">{service.description}</p>
-                                <a href={service.linkHref} className="mt-6 inline-block text-teal-400 font-semibold hover:text-teal-300 self-start">
-                                   {service.linkText} &rarr;
-                                </a>
+                                <button onClick={onCtaClick} className="mt-6 text-teal-400 font-semibold hover:text-teal-300 self-start">
+                                   Book a Consultation &rarr;
+                                </button>
                             </div>
                         ))}
                     </div>
                 </div>
             </section>
         );
+        
+        const AdvancedServicesSection = ({ onCtaClick }) => {
+            const serviceCategories = [
+                {
+                    category: "Smarter Workflows & Processes",
+                    services: [
+                        { name: "AI-Enhanced Workflow Automation", desc: "Make your business run itself. We'll use AI to automate your repetitive daily tasks, saving you time and money." },
+                        { name: "Intelligent Human-AI Collaboration", desc: "Create a 'Super-Team'. We'll redesign your processes so your employees and AI work together perfectly." },
+                        { name: "Interactive AI Interface Design", desc: "Build easy-to-use AI tools. We'll develop simple interfaces so your team will actually enjoy using them." },
+                    ]
+                },
+                {
+                    category: "AI Model Management & Upkeep",
+                    services: [
+                        { name: "Proactive AI Model Monitoring", desc: "Keep your AI sharp. We'll watch over your AI to make sure it stays accurate and effective over time." },
+                        { name: "Adaptive AI Performance Tuning", desc: "Build self-improving AI. We'll create systems that automatically update your AI so it's always getting smarter." },
+                        { name: "AI Health-Checks & Compliance Audits", desc: "Stay safe and compliant. We'll audit your AI systems to make sure they're secure and meet industry regulations." },
+                    ]
+                },
+                {
+                    category: "Powerful & Reliable AI Infrastructure",
+                    services: [
+                        { name: "Scalable AI Infrastructure Design", desc: "Build a powerful foundation for AI. We'll design a tech setup that can grow with your business without breaking the bank." },
+                        { name: "Multi-Cloud AI Deployment", desc: "Use the best tools for the job. We can run your AI on any cloud platform, like Google, Amazon, or Microsoft." },
+                        { name: "Efficient AI Management (with Kubernetes)", desc: "Make your AI reliable and efficient. We use modern tech to ensure your AI tools are always running smoothly." },
+                        { name: "Real-Time AI on Local Devices (Edge-AI)", desc: "Get instant AI results. We can make your AI work on local devices, like cameras or sensors, for lightning-fast responses." },
+                    ]
+                },
+                {
+                    category: "Industry-Specific AI Solutions",
+                    services: [
+                        { name: "Healthcare AI & Regulatory Compliance", desc: "AI for Healthcare, done right. We build secure, HIPAA-compliant AI solutions for clinics, hospitals, and medical companies." },
+                        { name: "Financial AI for Risk & Fraud Detection", desc: "Protect your finances with AI. We develop smart systems to identify financial risks and stop fraud in its tracks." },
+                        { name: "Manufacturing Predictive Maintenance", desc: "Prevent factory shutdowns. Our AI can predict when machinery will fail, saving you from costly downtime." },
+                    ]
+                },
+                {
+                    category: "Strategic & Financial Advisory",
+                    services: [
+                        { name: "Outcome-Based & ROI-Guaranteed Contracts", desc: "Pay for results, not just effort. We offer contracts where our fee is tied to the success and ROI we deliver." },
+                        { name: "AI Project Rescue & Recovery", desc: "Turn a failing AI project around. If your AI initiative is stuck, our expert team can step in to fix it and get it back on track." },
+                        { name: "Fractional AI Leadership & Strategy", desc: "Get expert AI leadership. Hire a part-time 'Chief AI Officer' from our team to guide your company's long-term strategy." },
+                    ]
+                }
+            ];
 
-        const PromoSection = () => (
-             <section id="promo" className="bg-gray-800 py-16">
+            return (
+                <section id="advanced-solutions" className="bg-gray-800 py-16 md:py-24">
+                    <div className="container mx-auto px-4">
+                        <SectionTitle title="Advanced & Enterprise AI Solutions" subtitle="For complex challenges, we offer a suite of specialized services to drive enterprise-level transformation." />
+                        <div className="space-y-12">
+                            {serviceCategories.map(category => (
+                                <div key={category.category} className="advanced-service-category">
+                                    <h3 className="text-2xl font-bold text-teal-400 mb-6 border-l-4 border-teal-400 pl-4">{category.category}</h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                                        {category.services.map(service => (
+                                            <div key={service.name}>
+                                                <h4 className="font-semibold text-white">{service.name}</h4>
+                                                <p className="text-gray-400 text-sm">{service.desc}</p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                        <div className="text-center mt-16">
+                            <button onClick={onCtaClick} className="cta-button inline-block bg-indigo-600 text-white font-bold text-lg px-12 py-4 rounded-full transition-transform duration-300 hover:-translate-y-1 shadow-lg">
+                                Discuss Your Enterprise Needs
+                            </button>
+                        </div>
+                    </div>
+                </section>
+            );
+        };
+
+        const PromoSection = ({ onCtaClick }) => (
+             <section id="promo" className="bg-gray-900 py-16">
                   <div className="container mx-auto px-4">
                       <div className="promotion-card bg-gradient-to-br from-gray-700 to-gray-800 text-center p-8 md:p-12 rounded-2xl border border-indigo-500 shadow-xl max-w-4xl mx-auto">
                           <h2 className="text-3xl md:text-4xl font-bold text-teal-400 mb-3">Limited-Time Founder's Rate for AVA</h2>
                           <p className="text-lg text-yellow-300 font-bold mb-4">Only 7 spots remaining at this price!</p>
                           <p className="text-base md:text-lg text-gray-200">To celebrate our launch, the first 20 businesses to sign up for our AI Virtual Agent (AVA) get the complete package for just <span className="font-bold text-white text-xl">$99/mo</span>. This rate is locked in forever. Regular price: <s>$249/mo</s>.</p>
+                           <button onClick={onCtaClick} className="mt-8 cta-button inline-block bg-teal-500 text-gray-900 font-bold text-lg px-12 py-4 rounded-full transition-transform duration-300 hover:-translate-y-1 shadow-lg">
+                                Claim My $99 Spot Now
+                           </button>
                       </div>
                   </div>
              </section>
         );
-
-        const HowItWorksSection = () => (
-             <section id="how-it-works" className="py-16 md:py-24">
-                  <div className="container mx-auto px-4">
-                     <SectionTitle title="Go Live This Week" subtitle="Our process for launching your AI Virtual Agent." />
-                     <div className="relative flex flex-col md:flex-row justify-center items-stretch gap-8 md:gap-16">
-                          <div className="hidden md:block absolute top-1/2 left-0 w-full h-0.5 border-t-2 border-dashed border-gray-600 -translate-y-1/2"></div>
-                          {[
-                              { title: "You Sign Up", description: "Click 'Get Started' and claim your $99 founder's rate. It takes 2 minutes." },
-                              { title: "We Customize", description: "Our team trains AVA on your specific business info, services, and voice." },
-                              { title: "You Grow", description: "We add AVA to your website and you immediately start capturing more leads and saving time." }
-                          ].map((step, index) => (
-                              <div key={index} className="step-card relative bg-gray-800 p-8 rounded-xl shadow-lg z-10 flex-1 max-w-sm text-center border border-gray-700">
-                                  <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 bg-indigo-600 text-white rounded-full flex items-center justify-center text-xl font-bold border-4 border-gray-900">
-                                      {index + 1}
-                                  </div>
-                                  <h3 className="text-xl font-bold text-white mt-8 mb-3">{step.title}</h3>
-                                  <p className="text-gray-400">{step.description}</p>
-                              </div>
-                          ))}
-                     </div>
-                  </div>
-             </section>
-        );
-
-        const TestimonialsSection = () => (
-             <section id="testimonials" className="bg-gray-900 py-16 md:py-24">
-                 <div className="container mx-auto px-4">
-                     <SectionTitle title="Trusted by Businesses Like Yours" />
-                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-start">
-                         <div className="testimonial-card relative bg-gray-800 p-8 rounded-xl shadow-lg border border-gray-700">
-                              <div className="absolute top-4 left-6 text-7xl font-serif text-indigo-500/20 -z-0">"</div>
-                              <div className="relative z-10">
-                                 <p className="text-lg italic text-gray-300 mb-6">"In the first month, we saw a <span className='font-bold text-white'>30% increase in booked appointments</span> because AVA captured all the after-hours website leads we used to miss. It's a total game-changer for our office."</p>
-                                 <div className="text-right font-bold text-teal-400">- J. Broussard, Home Services</div>
-                              </div>
-                         </div>
-                         <div className="testimonial-card relative bg-gray-800 p-8 rounded-xl shadow-lg border border-gray-700">
-                              <div className="absolute top-4 left-6 text-7xl font-serif text-indigo-500/20 -z-0">"</div>
-                              <div className="relative z-10">
-                                 <p className="text-lg italic text-gray-300 mb-6">"I was skeptical, but AVA now handles 90% of our routine questions about our menu and hours. My staff is less stressed and can focus on the customers in front of them."</p>
-                                 <div className="text-right font-bold text-teal-400">- M. Prejean, Restaurant Owner</div>
-                              </div>
-                         </div>
-                     </div>
-                 </div>
-             </section>
-        );
-
+        
         const CtaSection = ({ onCtaClick }) => (
              <section id="signup" className="bg-gradient-to-r from-indigo-700 to-indigo-900 text-white text-center py-16 md:py-24">
                  <div className="container mx-auto px-4">
-                     <h2 className="text-4xl md:text-5xl font-black mb-4">Don't Lose Another Customer.</h2>
+                     <h2 className="text-4xl md:text-5xl font-black mb-4">Ready to Implement AI?</h2>
                      <p className="text-lg md:text-xl text-indigo-200 max-w-3xl mx-auto mb-8">Reclaim your time and grow your business with an employee that never sleeps. Secure your special offer or book a discovery call today.</p>
                      <button onClick={onCtaClick} className="cta-button inline-block bg-teal-500 text-gray-900 font-bold text-lg px-12 py-4 rounded-full transition-transform duration-300 hover:-translate-y-1 shadow-lg pulse">
                          Get Started Now
@@ -710,7 +624,7 @@
                   <div className="container mx-auto px-4">
                       <p className="font-bold text-white text-lg">Magnolia AI Experts</p>
                       <p className="my-1">Your Partner in AI-Powered Growth</p>
-                      <p className="my-1">info@magnoliaaiexperts.com | (555) 555-5555</p>
+                      <p className="my-1">info@magnoliaaiexperts.com</p>
                       <div className="mt-4">
                           <p>&copy; {new Date().getFullYear()} Magnolia AI Experts. All Rights Reserved.</p>
                       </div>
@@ -724,25 +638,21 @@
             const [isModalOpen, setIsModalOpen] = React.useState(false);
             const [firebase, setFirebase] = React.useState(null);
 
-            // Initialize Firebase on component mount
             React.useEffect(() => {
                 if (window.firebaseServices) {
                     window.firebaseServices().then(services => {
-                        if (services && !services.error) {
-                            setFirebase(services);
-                        }
+                        if (services && !services.error) setFirebase(services);
                     });
                 }
             }, []);
 
-            // Handle animations and section observer
             React.useEffect(() => {
                 if (window.particlesJS) {
                     window.particlesJS('particles-js', { particles: { number: { value: 40, density: { enable: true, value_area: 800 } }, color: { value: "#05caa7" }, opacity: { value: 0.2 }, size: { value: 2 }, line_linked: { enable: true, distance: 150, color: "#4e54c8", opacity: 0.2 }, move: { enable: true, speed: 1 } }, interactivity: { events: { onhover: { enable: true, mode: "repulse" } }, modes: { repulse: { distance: 80 } } } });
                 }
                 
                 gsap.registerPlugin(ScrollTrigger);
-                gsap.utils.toArray('.feature-card, .service-card, .step-card, .testimonial-card, .promotion-card').forEach(elem => {
+                gsap.utils.toArray('.feature-card, .service-card, .advanced-service-category, .testimonial-card, .promotion-card').forEach(elem => {
                     gsap.from(elem, { 
                         scrollTrigger: { trigger: elem, start: 'top 85%', toggleActions: 'play none none none' },
                         opacity: 0, y: 50, duration: 0.8, ease: 'power3.out',
@@ -752,9 +662,7 @@
                 const sections = Array.from(document.querySelectorAll('header[id], section[id]'));
                 const observer = new IntersectionObserver((entries) => {
                     entries.forEach(entry => {
-                        if (entry.isIntersecting) {
-                            setActiveSection(entry.target.id);
-                        }
+                        if (entry.isIntersecting) setActiveSection(entry.target.id);
                     });
                 }, { rootMargin: '-40% 0px -60% 0px' });
                 sections.forEach(sec => observer.observe(sec));
@@ -765,59 +673,21 @@
             React.useEffect(() => {
                 document.body.style.overflow = isModalOpen ? 'hidden' : 'unset';
             }, [isModalOpen]);
-
-            const structuredData = {
-                "@context": "https://schema.org",
-                "@type": "Service",
-                "serviceType": "AI Virtual Agent and Automation Provider",
-                "provider": { "@type": "Organization", "name": "Magnolia AI Experts" },
-                "name": "AI Solutions for Business Growth",
-                "description": seoData.description,
-                "offers": {
-                    "@type": "Offer",
-                    "itemOffered": {
-                        "@type": "Service",
-                        "name": "AI Virtual Agent (AVA) Setup & Management",
-                        "description": "A 24/7 AI-powered virtual agent for your website to capture leads, answer customer questions, and book appointments."
-                    },
-                    "price": "99",
-                    "priceCurrency": "USD",
-                    "priceSpecification": { "@type": "PriceSpecification", "price": "99", "priceCurrency": "USD", "valueAddedTaxIncluded": "false", "unitText": "MONTH" }
-                }
-            };
-            const faqStructuredData = {
-                "@context": "https://schema.org",
-                "@type": "FAQPage",
-                "mainEntity": [{
-                    "@type": "Question", "name": "What is an AI Virtual Agent?",
-                    "acceptedAnswer": { "@type": "Answer", "text": "An AI Virtual Agent (like AVA) is a smart chatbot installed on your website that can understand customer questions and provide intelligent answers 24/7. It can capture leads, book appointments, and answer frequently asked questions, saving you time and money." }
-                },{
-                    "@type": "Question", "name": "What other AI services do you offer?",
-                    "acceptedAnswer": { "@type": "Answer", "text": "Beyond our AVA chatbot, we offer a range of AI services including custom GPT development, AI automation for business workflows, AI integration consulting, and workforce education through our PromptCraft program." }
-                },{
-                    "@type": "Question", "name": "How long does it take to set up?",
-                    "acceptedAnswer": { "@type": "Answer", "text": "Our expert team can typically have your custom AI Virtual Agent trained and implemented on your website within 3 business days. Custom projects have a variable timeline based on complexity."
-                    }
-                }]
-            };
+            
+            const handleCtaClick = () => setIsModalOpen(true);
 
             return (
                 <div className="bg-gray-900">
                     <Head title={seoData.title} description={seoData.description} keywords={seoData.keywords} />
-                    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
-                    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqStructuredData) }} />
-
                     {isModalOpen && <SignUpModal onClose={() => setIsModalOpen(false)} firebase={firebase} />}
-                    
-                    <Navigation activeSection={activeSection} onCtaClick={() => setIsModalOpen(true)} />
+                    <Navigation activeSection={activeSection} onCtaClick={handleCtaClick} />
                     <main>
                         <Header />
                         <FeaturesSection />
-                        <ServicesSection />
-                        <PromoSection />
-                        <HowItWorksSection />
-                        <TestimonialsSection />
-                        <CtaSection onCtaClick={() => setIsModalOpen(true)} />
+                        <ServicesSection onCtaClick={handleCtaClick} />
+                        <AdvancedServicesSection onCtaClick={handleCtaClick} />
+                        <PromoSection onCtaClick={handleCtaClick} />
+                        <CtaSection onCtaClick={handleCtaClick} />
                     </main>
                     <Footer />
                     <ChatbotWidget />
@@ -825,8 +695,7 @@
             );
         };
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
+        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
 
     </script>
 </body>
