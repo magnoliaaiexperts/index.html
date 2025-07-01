@@ -180,7 +180,6 @@
                 setStatus('loading');
                 
                 try {
-                    // UPDATED URL: The new Google Apps Script URL for form submission.
                     const scriptURL = 'https://script.google.com/macros/s/AKfycbyK5LZtqs2suLlcc2ELm5Bu0JUGPkNd9fsTye-_U88wifOz1hfH21WmbQ_c9Le6Khg/exec';
                     const response = await fetch(scriptURL, { 
                         method: 'POST', 
@@ -476,7 +475,7 @@
                             { icon: '🤖', title: 'Custom GPT Development', description: 'Want a specialized AI chatbot? We build and train custom GPT models on your data for expert-level conversations.' },
                             { icon: '⚙️', title: 'AI Automation Services', description: 'Need to streamline operations? Book an AI Discovery Session to explore custom workflows and automation opportunities.' },
                             { icon: '📈', title: 'Lead-to-Claim T.R.A.C.E. Ecosystem', description: 'A specialized system for roofers to track leads from initial contact to a paid claim, powered by AI.' },
-                            { icon: ' ', title: 'Lead Generation Chatbot Pages', description: 'Get our flagship AVA chatbot integrated into a high-converting landing page built to turn visitors into qualified leads.' },
+                            { icon: '🌐', title: 'Lead Generation Chatbot Pages', description: 'Get our flagship AVA chatbot integrated into a high-converting landing page built to turn visitors into qualified leads.' },
                             { icon: '🤝', title: 'AI Integration Consulting', description: 'Not sure where to start with AI? Our experts will help you identify opportunities and create a roadmap for success.' },
                             { icon: '🎓', title: 'Custom Tailored Local AI Solutions', description: 'Empower your team with custom AI tools and the skills to use them effectively, enhancing productivity and innovation.' },
                         ].map((service) => (
@@ -503,7 +502,7 @@
 
             const serviceCategories = [
                 {
-                    category: "Smarter Workflows & Processes",
+                    category: "Ready to Supercharge Your Operations?",
                     services: [
                         { name: "AI-Enhanced Workflow Automation & Optimization", short_desc: "Harmonize your operations with intelligent process automation.", full_desc: "We map existing workflows, identify repetitive tasks ripe for AI acceleration, and implement end-to-end automation—freeing your team for high-value work.", deliverables: "Workflow analysis report, custom automation pipelines, training & handoff documentation." },
                         { name: "Intelligent Human-AI Collaboration Redesign", short_desc: "Redefine how humans and AI agents work together.", full_desc: "From role definitions and task allocation to interactive dashboards, we design collaboration patterns that maximize productivity and employee satisfaction.", deliverables: "Collaboration playbooks, UI prototypes, change management plan." },
@@ -511,7 +510,7 @@
                     ]
                 },
                 {
-                    category: "AI Model Management & Upkeep",
+                    category: "Is Your AI Performing at its Peak?",
                     services: [
                         { name: "Proactive AI Model Monitoring & Drift Detection", short_desc: "Maintain peak model performance in production.", full_desc: "Our monitoring framework continuously tracks data drift, performance metrics, and triggers automated retraining to ensure your AI stays accurate and reliable.", deliverables: "Monitoring dashboards, drift alert system, retraining pipeline." },
                         { name: "Adaptive Performance Tuning & Retraining Pipelines", short_desc: "Keep pace with changing data and business needs.", full_desc: "We build adaptive pipelines that retrain and redeploy models automatically, leveraging the latest data to maintain accuracy and relevance.", deliverables: "CI/CD for ML, automated data ingestion scripts, retraining schedules." },
@@ -519,27 +518,27 @@
                     ]
                 },
                 {
-                    category: "Powerful & Reliable AI Infrastructure",
+                    category: "Need a Powerful & Reliable AI Infrastructure?",
                     services: [
                         { name: "Scalable Infrastructure & Resource Optimization", short_desc: "Scale AI workloads seamlessly across clouds and edge.", full_desc: "We architect robust infrastructure to optimize GPU usage, minimize latency, and control costs—whether in AWS, Azure, GCP, or on-premises.", deliverables: "Architecture diagrams, cost-optimization plan, deployment scripts." },
-                        { name: "Multi-Model Orchestration & Kubernetes", short_desc: "Simplify complex AI portfolios with containerized orchestration.", full_desc: "Our solutions automate model deployment, scaling, and version management—enabling you to run dozens of models reliably.", deliverables: "Helm charts, Kubernetes manifests, autoscaling policies." },
-                        { name: "Edge-AI Real-Time Processing & Latency Optimization", short_desc: "Deliver AI insights at the edge for mission-critical applications.", full_desc: "We tune inference engines and network configurations to achieve sub-millisecond response times in manufacturing lines or trading floors.", deliverables: "Edge deployment packages, latency benchmarks, failover strategies." },
+                        { name: "Multi-Model Orchestration with Kubernetes", short_desc: "Simplify complex AI portfolios with containerized orchestration.", full_desc: "Our solutions automate model deployment, scaling, and version management—enabling you to run dozens of models reliably.", deliverables: "Helm charts, Kubernetes manifests, autoscaling policies." },
+                        { name: "Edge-AI for Real-Time Processing", short_desc: "Deliver AI insights at the edge for mission-critical applications.", full_desc: "We tune inference engines and network configurations to achieve sub-millisecond response times in manufacturing lines or trading floors.", deliverables: "Edge deployment packages, latency benchmarks, failover strategies." },
                     ]
                 },
                 {
-                    category: "Industry-Specific AI Solutions",
+                    category: "Looking for Industry-Specific AI Expertise?",
                     services: [
-                        { name: "Healthcare AI Integration & Regulatory Compliance", short_desc: "Navigate the complexities of healthcare AI.", full_desc: "From EHR integration to FDA validation and HIPAA compliance, we deliver solutions that improve patient care without risking compliance.", deliverables: "Validation protocols, secure data pipelines, user training modules." },
-                        { name: "Financial AI Risk Modeling & Fraud Detection", short_desc: "Build trust in your financial AI systems.", full_desc: "We develop Basel III-compliant models, real-time fraud detection pipelines, and audit-ready documentation to meet regulators’ standards.", deliverables: "Risk scoring engines, monitoring dashboards, compliance reporting templates." },
-                        { name: "Manufacturing Predictive Maintenance & Anomaly Detection", short_desc: "Reduce downtime and maintenance costs with AI-driven monitoring.", full_desc: "We integrate sensor networks, train predictive models, and surface alerts to maintenance teams—saving up to 35% in unplanned outages.", deliverables: "Sensor integration guides, anomaly detection models, dashboard visualizations." },
+                        { name: "Healthcare AI & FDA/HIPAA Compliance", short_desc: "Navigate the complexities of healthcare AI.", full_desc: "From EHR integration to FDA validation and HIPAA compliance, we deliver solutions that improve patient care without risking compliance.", deliverables: "Validation protocols, secure data pipelines, user training modules." },
+                        { name: "Financial AI for Risk Modeling & Fraud Detection", short_desc: "Build unbreakable trust in your financial AI systems.", full_desc: "We develop Basel III-compliant models, real-time fraud detection pipelines, and audit-ready documentation to meet regulators’ standards.", deliverables: "Risk scoring engines, monitoring dashboards, compliance reporting templates." },
+                        { name: "AI for Manufacturing: Cut Maintenance Costs by 35%", short_desc: "Reduce downtime with AI-driven predictive maintenance.", full_desc: "We integrate sensor networks, train predictive models, and surface alerts to maintenance teams—saving up to 35% in unplanned outages.", deliverables: "Sensor integration guides, anomaly detection models, dashboard visualizations." },
                     ]
                 },
                 {
-                    category: "Strategic & Financial Advisory",
+                    category: "Need Strategic AI Guidance?",
                     services: [
-                        { name: "Outcome-Based AI Pricing & ROI Contracts", short_desc: "Partner on shared success.", full_desc: "Our outcome-based contracts tie fees to measurable ROI, ensuring both parties benefit from AI’s impact on revenue or cost savings.", deliverables: "KPI definition workshops, contract templates, performance tracking." },
-                        { name: "AI Rescue & Recovery Services", short_desc: "Don’t let stalled projects derail your AI strategy.", full_desc: "We jump in with emergency “rescue” packages—analyzing failure points, refactoring models, and relaunching initiatives fast.", deliverables: "Rapid-response playbook, gap analysis, recovery timeline." },
-                        { name: "Strategic AI Transformation & Fractional Leadership Advisory", short_desc: "Gain strategic oversight without a full-time hire.", full_desc: "Our fractional AI executives guide your roadmap, align stakeholders, and drive innovation—ensuring sustained momentum and ROI.", deliverables: "Transformation roadmap, advisory board sessions, progress reports." },
+                        { name: "Outcome-Based AI Pricing & ROI-Guaranteed Contracts", short_desc: "Partner with us on shared success. We win when you win.", full_desc: "Our outcome-based contracts tie fees to measurable ROI, ensuring both parties benefit from AI’s impact on revenue or cost savings.", deliverables: "KPI definition workshops, contract templates, performance tracking." },
+                        { name: "AI Initiative Rescue & Recovery Services", short_desc: "Is your AI project stalled or failing? Let us get it back on track.", full_desc: "We jump in with emergency “rescue” packages—analyzing failure points, refactoring models, and relaunching initiatives fast.", deliverables: "Rapid-response playbook, gap analysis, recovery timeline." },
+                        { name: "Strategic AI Transformation & Fractional Leadership", short_desc: "Gain C-suite AI oversight without a full-time hire.", full_desc: "Our fractional AI executives guide your roadmap, align stakeholders, and drive innovation—ensuring sustained momentum and ROI.", deliverables: "Transformation roadmap, advisory board sessions, progress reports." },
                     ]
                 }
             ];
@@ -569,7 +568,7 @@
                         </div>
                         <div className="text-center mt-16">
                             <button onClick={onCtaClick} className="cta-button inline-block bg-indigo-600 text-white font-bold text-lg px-12 py-4 rounded-full transition-transform duration-300 hover:-translate-y-1 shadow-lg">
-                                Discuss Your Enterprise Needs
+                                Schedule Your AI Readiness Assessment
                             </button>
                         </div>
                     </div>
@@ -676,4 +675,3 @@
     </script>
 </body>
 </html>
- 
