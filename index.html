@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <title>AI Solutions for Business Growth | Magnolia AI Experts</title>
-    <meta name="description" content="Stop missing calls and losing leads. Our AI Virtual Agents and custom automation solutions capture every opportunity, answer customer questions, and streamline your operations.">
+    <title>AI Virtual Agent for Your Local Businesses | AVA</title>
+    <meta name="description" content="Stop missing calls and losing leads in your area. AVA, your 24/7 AI Virtual Agent, captures every opportunity, answers customer questions, and books appointments. Get started for just $99.">
     
     <!-- React and Babel for JSX transpilation -->
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
@@ -91,22 +91,328 @@
             background-color: #4a5568;
             border-radius: 20px;
         }
-        .details-content {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.5s ease-in-out;
-        }
-        .details-content.expanded {
-            max-height: 500px; /* Adjust as needed */
-        }
     </style>
 </head>
 <body>
     <div id="root"></div>
     <div id="particles-js" style="position: fixed; width: 100%; height: 100%; top: 0; left: 0; z-index: -1; pointer-events: none;"></div>
     
-    <!-- Note: Form submission is handled by a direct fetch call to a Google Apps Script URL. -->
+    <!-- Zoho CRM Integration Script -->
+    <script>
+        // Zoho CRM Configuration
+        window.ZOHO_CONFIG = {
+            CLIENT_ID: '1000.SO87YN4VVDINMKBKQJQGPSD0ZVLY8H',
+            CLIENT_SECRET: 'df8341349267dc784253a296209829d4c02e2e0970', // Replace with actual secret
+            REDIRECT_URI: window.location.origin + '/oauth/callback',
+            SCOPE: 'ZohoCRM.modules.ALL',
+            ACCESS_TYPE: 'offline',
+            DOMAIN: 'https://www.zohoapis.com',
+            ACCOUNTS_URL: 'https://accounts.zoho.com'
+        };
 
+        // Zoho CRM Integration Service
+        class ZohoCRMService {
+            constructor() {
+                this.accessToken = localStorage.getItem('zoho_access_token');
+                this.refreshToken = localStorage.getItem('zoho_refresh_token');
+                this.tokenExpiry = localStorage.getItem('zoho_token_expiry');
+            }
+
+            // Generate authorization URL for OAuth
+            getAuthUrl() {
+                const params = new URLSearchParams({
+                    response_type: 'code',
+                    client_id: window.ZOHO_CONFIG.CLIENT_ID,
+                    scope: window.ZOHO_CONFIG.SCOPE,
+                    redirect_uri: window.ZOHO_CONFIG.REDIRECT_URI,
+                    access_type: window.ZOHO_CONFIG.ACCESS_TYPE
+                });
+                return `${window.ZOHO_CONFIG.ACCOUNTS_URL}/oauth/v2/auth?${params.toString()}`;
+            }
+
+            // Exchange authorization code for access token
+            async getAccessToken(authCode) {
+                try {
+                    const response = await fetch(`${window.ZOHO_CONFIG.ACCOUNTS_URL}/oauth/v2/token`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: new URLSearchParams({
+                            grant_type: 'authorization_code',
+                            client_id: window.ZOHO_CONFIG.CLIENT_ID,
+                            client_secret: window.ZOHO_CONFIG.CLIENT_SECRET,
+                            redirect_uri: window.ZOHO_CONFIG.REDIRECT_URI,
+                            code: authCode
+                        })
+                    });
+
+                    const data = await response.json();
+                    
+                    if (data.access_token) {
+                        this.accessToken = data.access_token;
+                        this.refreshToken = data.refresh_token;
+                        this.tokenExpiry = Date.now() + (data.expires_in * 1000);
+                        
+                        localStorage.setItem('zoho_access_token', this.accessToken);
+                        localStorage.setItem('zoho_refresh_token', this.refreshToken);
+                        localStorage.setItem('zoho_token_expiry', this.tokenExpiry);
+                        
+                        return true;
+                    }
+                    return false;
+                } catch (error) {
+                    console.error('Error getting access token:', error);
+                    return false;
+                }
+            }
+
+            // Refresh access token using refresh token
+            async refreshAccessToken() {
+                if (!this.refreshToken) return false;
+
+                try {
+                    const response = await fetch(`${window.ZOHO_CONFIG.ACCOUNTS_URL}/oauth/v2/token`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: new URLSearchParams({
+                            grant_type: 'refresh_token',
+                            client_id: window.ZOHO_CONFIG.CLIENT_ID,
+                            client_secret: window.ZOHO_CONFIG.CLIENT_SECRET,
+                            refresh_token: this.refreshToken
+                        })
+                    });
+
+                    const data = await response.json();
+                    
+                    if (data.access_token) {
+                        this.accessToken = data.access_token;
+                        this.tokenExpiry = Date.now() + (data.expires_in * 1000);
+                        
+                        localStorage.setItem('zoho_access_token', this.accessToken);
+                        localStorage.setItem('zoho_token_expiry', this.tokenExpiry);
+                        
+                        return true;
+                    }
+                    return false;
+                } catch (error) {
+                    console.error('Error refreshing token:', error);
+                    return false;
+                }
+            }
+
+            // Check if token is valid and refresh if needed
+            async ensureValidToken() {
+                if (!this.accessToken) return false;
+                
+                // Check if token is about to expire (within 5 minutes)
+                if (this.tokenExpiry && (Date.now() + 300000) > this.tokenExpiry) {
+                    return await this.refreshAccessToken();
+                }
+                
+                return true;
+            }
+
+            // Create a lead in Zoho CRM
+            async createLead(leadData) {
+                try {
+                    const isTokenValid = await this.ensureValidToken();
+                    if (!isTokenValid) {
+                        throw new Error('Unable to authenticate with Zoho CRM');
+                    }
+
+                    const payload = {
+                        data: [{
+                            Last_Name: leadData.name.split(' ').pop() || leadData.name,
+                            First_Name: leadData.name.split(' ').slice(0, -1).join(' ') || '',
+                            Email: leadData.email,
+                            Company: leadData.businessName,
+                            Industry: this.formatIndustry(leadData.industry),
+                            Title: leadData.role,
+                            Lead_Source: 'Website - AVA Landing Page',
+                            Phone: leadData.phone || '',
+                            Street: leadData.address || '',
+                            City: leadData.city || 'Lafayette',
+                            State: leadData.state || 'Louisiana',
+                            Country: 'United States',
+                            Description: `Lead generated from AVA landing page. Industry: ${leadData.industry}, Business: ${leadData.businessName}, Role: ${leadData.role}`,
+                            Lead_Status: 'Not Contacted',
+                            Rating: 'Hot',
+                            // Custom fields for tracking
+                            Signup_Date: new Date().toISOString().split('T')[0],
+                            Special_Offer: 'Founder\'s Rate - $99/mo',
+                            UTM_Source: leadData.utmSource || 'direct',
+                            UTM_Medium: leadData.utmMedium || 'website',
+                            UTM_Campaign: leadData.utmCampaign || 'ava-landing'
+                        }]
+                    };
+
+                    const response = await fetch(`${window.ZOHO_CONFIG.DOMAIN}/crm/v8/Leads`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Zoho-oauthtoken ${this.accessToken}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    const result = await response.json();
+                    
+                    if (result.data && result.data[0].status === 'success') {
+                        console.log('Lead created successfully:', result.data[0]);
+                        return {
+                            success: true,
+                            leadId: result.data[0].details.id,
+                            message: 'Lead captured successfully!'
+                        };
+                    } else {
+                        console.error('Error creating lead:', result);
+                        return {
+                            success: false,
+                            error: result.data?.[0]?.message || 'Failed to create lead'
+                        };
+                    }
+                } catch (error) {
+                    console.error('Error in createLead:', error);
+                    return {
+                        success: false,
+                        error: error.message || 'Network error occurred'
+                    };
+                }
+            }
+
+            // Format industry for Zoho CRM
+            formatIndustry(industry) {
+                const industryMap = {
+                    'home_services': 'Home Services',
+                    'oil_and_gas': 'Oil & Gas',
+                    'real_estate': 'Real Estate',
+                    'restaurants': 'Restaurants',
+                    'medical': 'Healthcare',
+                    'legal': 'Legal Services',
+                    'automotive': 'Automotive',
+                    'other': 'Other'
+                };
+                return industryMap[industry] || industry;
+            }
+
+            // Create a note for the lead
+            async createNote(leadId, noteContent) {
+                try {
+                    const isTokenValid = await this.ensureValidToken();
+                    if (!isTokenValid) return false;
+
+                    const payload = {
+                        data: [{
+                            Note_Title: 'AVA Landing Page Interaction',
+                            Note_Content: noteContent,
+                            Parent_Id: leadId,
+                            se_module: 'Leads'
+                        }]
+                    };
+
+                    const response = await fetch(`${window.ZOHO_CONFIG.DOMAIN}/crm/v8/Notes`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Zoho-oauthtoken ${this.accessToken}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    const result = await response.json();
+                    return result.data && result.data[0].status === 'success';
+                } catch (error) {
+                    console.error('Error creating note:', error);
+                    return false;
+                }
+            }
+
+            // Track lead engagement (page views, time spent, etc.)
+            async updateLeadEngagement(leadId, engagementData) {
+                try {
+                    const isTokenValid = await this.ensureValidToken();
+                    if (!isTokenValid) return false;
+
+                    const payload = {
+                        data: [{
+                            id: leadId,
+                            Page_Views: engagementData.pageViews || 1,
+                            Time_On_Site: engagementData.timeOnSite || 0,
+                            Last_Activity: new Date().toISOString(),
+                            Engagement_Score: this.calculateEngagementScore(engagementData)
+                        }]
+                    };
+
+                    const response = await fetch(`${window.ZOHO_CONFIG.DOMAIN}/crm/v8/Leads`, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `Zoho-oauthtoken ${this.accessToken}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    const result = await response.json();
+                    return result.data && result.data[0].status === 'success';
+                } catch (error) {
+                    console.error('Error updating lead engagement:', error);
+                    return false;
+                }
+            }
+
+            calculateEngagementScore(data) {
+                let score = 0;
+                score += (data.pageViews || 0) * 10;
+                score += Math.min((data.timeOnSite || 0) / 60, 10) * 5; // Max 50 points for time
+                score += data.formInteractions ? 25 : 0;
+                score += data.chatInteractions ? 15 : 0;
+                return Math.min(score, 100);
+            }
+        }
+
+        // Initialize Zoho CRM service
+        window.zohoCRM = new ZohoCRMService();
+
+        // Enhanced analytics and tracking
+        window.leadTracker = {
+            startTime: Date.now(),
+            pageViews: 1,
+            formInteractions: false,
+            chatInteractions: false,
+            scrollDepth: 0,
+            
+            trackFormInteraction() {
+                this.formInteractions = true;
+            },
+            
+            trackChatInteraction() {
+                this.chatInteractions = true;
+            },
+            
+            trackScrollDepth() {
+                const scrollPercent = Math.round((window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100);
+                this.scrollDepth = Math.max(this.scrollDepth, scrollPercent);
+            },
+            
+            getEngagementData() {
+                return {
+                    pageViews: this.pageViews,
+                    timeOnSite: Math.round((Date.now() - this.startTime) / 1000),
+                    formInteractions: this.formInteractions,
+                    chatInteractions: this.chatInteractions,
+                    scrollDepth: this.scrollDepth
+                };
+            }
+        };
+
+        // Track scroll depth
+        window.addEventListener('scroll', () => {
+            window.leadTracker.trackScrollDepth();
+        });
+    </script>
 
     <script type="text/babel">
         // Helper function to combine class names conditionally
@@ -116,24 +422,26 @@
 
         // --- SEO & Data ---
         const seoData = {
-            title: "AI Solutions for Business Growth | Magnolia AI Experts",
-            description: "Stop missing calls and losing leads. Our AI Virtual Agents and custom automation solutions capture every opportunity, answer customer questions, and streamline your operations.",
-            keywords: "AI virtual agent, chatbot, lead generation, business automation, custom GPT, AI consulting, MLOps, AI infrastructure",
+            title: "AI Virtual Agent for Businesses in Lafayette, LA | AVA",
+            description: "Stop missing calls and losing leads in Lafayette. AVA, your 24/7 AI Virtual Agent, captures every opportunity, answers customer questions, and books appointments. Get started for just $99.",
+            keywords: "AI virtual agent, Lafayette chatbot, lead generation, 24/7 customer service, business automation, small business tools Louisiana",
             author: "Magnolia AI Experts",
-            url: "https://magnoliaaiexperts.com",
+            url: "https://magnoliaaiexperts.com/ava-local",
             image: "https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg",
         };
 
         const navLinks = [
             { name: 'Home', href: '#home' },
             { name: 'Why AVA?', href: '#features' },
-            { name: 'Services', href: '#services' },
-            { name: 'Advanced Solutions', href: '#advanced-solutions' },
             { name: 'The Offer', href: '#promo' },
+            { name: 'How It Works', href: '#how-it-works' },
+            { name: 'Results', href: '#testimonials' },
             { name: 'Get Started', href: '#signup', isButton: true },
         ];
         
         // --- Reusable Components ---
+
+        // Component to manage the document's head for SEO
         const Head = ({ title, description, keywords }) => {
             React.useEffect(() => {
                 document.title = title;
@@ -142,6 +450,7 @@
             return null;
         };
 
+        // Standardized section title component
         const SectionTitle = ({ title, subtitle, className }) => (
             <div className={classNames("text-center mb-10 md:mb-16", className)}>
                 <h2 className="text-3xl md:text-4xl font-black text-white relative inline-block pb-3 mb-4">
@@ -152,13 +461,17 @@
             </div>
         );
 
+        // Enhanced Sign-up modal with Zoho CRM integration
         const SignUpModal = ({ onClose }) => {
             const [formData, setFormData] = React.useState({
-                name: '', email: '', industry: '', businessName: '', role: '', inquiryType: 'AVA Offer'
+                name: '', email: '', industry: '', businessName: '', role: '', phone: '', city: 'Lafayette'
             });
             const [status, setStatus] = React.useState('idle');
             const [error, setError] = React.useState('');
-            const formRef = React.useRef(null);
+
+            React.useEffect(() => {
+                window.leadTracker.trackFormInteraction();
+            }, []);
 
             const handleChange = (e) => {
                 const { name, value } = e.target;
@@ -168,7 +481,9 @@
             const handleSubmit = async (e) => {
                 e.preventDefault();
                 setError('');
-                if (!formData.name || !formData.email || !formData.industry) {
+                
+                // Enhanced validation
+                if (!formData.name || !formData.email || !formData.industry || !formData.businessName || !formData.role) {
                     setError("Please fill in all required fields.");
                     return;
                 }
@@ -180,21 +495,56 @@
                 setStatus('loading');
                 
                 try {
-                    const scriptURL = 'https://script.google.com/macros/s/AKfycbyK5LZtqs2suLlcc2ELm5Bu0JUGPkNd9fsTye-_U88wifOz1hfH21WmbQ_c9Le6Khg/exec';
-                    const response = await fetch(scriptURL, { 
-                        method: 'POST', 
-                        body: new FormData(formRef.current)
-                    });
+                    // Add UTM parameters and engagement data
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const enrichedFormData = {
+                        ...formData,
+                        utmSource: urlParams.get('utm_source'),
+                        utmMedium: urlParams.get('utm_medium'),
+                        utmCampaign: urlParams.get('utm_campaign'),
+                        engagementData: window.leadTracker.getEngagementData()
+                    };
 
-                    if (response.ok) {
-                        console.log('Success!', response);
+                    // Submit to Zoho CRM
+                    const result = await window.zohoCRM.createLead(enrichedFormData);
+                    
+                    if (result.success) {
+                        // Track successful conversion
+                        if (window.gtag) {
+                            window.gtag('event', 'conversion', {
+                                'send_to': 'AW-CONVERSION_ID/CONVERSION_LABEL',
+                                'value': 99.0,
+                                'currency': 'USD'
+                            });
+                        }
+                        
+                        // Facebook Pixel tracking
+                        if (window.fbq) {
+                            window.fbq('track', 'Lead', {
+                                value: 99.0,
+                                currency: 'USD',
+                                content_name: 'AVA Founder Rate'
+                            });
+                        }
+                        
                         setStatus('success');
+                        
+                        // Create engagement note
+                        const engagementNote = `Lead source: AVA Landing Page
+Time on site: ${Math.round(enrichedFormData.engagementData.timeOnSite / 60)} minutes
+Scroll depth: ${enrichedFormData.engagementData.scrollDepth}%
+Form interactions: ${enrichedFormData.engagementData.formInteractions ? 'Yes' : 'No'}
+Chat interactions: ${enrichedFormData.engagementData.chatInteractions ? 'Yes' : 'No'}`;
+                        
+                        window.zohoCRM.createNote(result.leadId, engagementNote);
+                        
                     } else {
-                        throw new Error('Network response was not ok.');
+                        setError(result.error || 'Failed to submit. Please try again.');
+                        setStatus('error');
                     }
                 } catch (err) {
-                    console.error('Error!', err.message);
-                    setError('An error occurred. Please try again.');
+                    console.error('Submission Error:', err);
+                    setError('An error occurred. Please try again or contact us directly.');
                     setStatus('error');
                 }
             };
@@ -217,40 +567,54 @@
                                 <div className="w-16 h-16 text-teal-400 mx-auto mb-4">
                                      <svg className="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                 </div>
-                                <p className="text-2xl text-teal-300 font-semibold">Thank You!</p>
-                                <p className="text-gray-300 mt-2">Your information has been submitted. We'll be in touch shortly.</p>
+                                <p className="text-2xl text-teal-300 font-semibold">Welcome Aboard!</p>
+                                <p className="text-gray-300 mt-2">Your information has been submitted to our CRM. We'll be in touch within 24 hours to configure your AI.</p>
+                                <div className="mt-4 p-4 bg-indigo-900/50 rounded-lg">
+                                    <p className="text-sm text-indigo-200">🎉 Your $99 founder's rate is secured!</p>
+                                    <p className="text-xs text-gray-400 mt-1">Check your email for next steps and setup details.</p>
+                                </div>
                                 <button onClick={onClose} className="mt-6 px-6 py-2 bg-teal-600 text-white font-semibold rounded-lg shadow-md hover:bg-teal-700">Close</button>
                             </div>
                         ) : (
                             <>
                                 <div className="text-center mb-6">
-                                    <h2 className="text-2xl sm:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-teal-300 to-indigo-400">Get Started with AI</h2>
-                                    <p className="text-gray-400 mt-2">Tell us a bit about your needs to get started.</p>
+                                    <h2 className="text-2xl sm:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-teal-300 to-indigo-400">Claim Your Founder's Rate</h2>
+                                    <p className="text-gray-400 mt-2">Secure your spot and we'll start building your custom AI agent.</p>
                                 </div>
-                                <form ref={formRef} name="submit-to-google-sheet" onSubmit={handleSubmit} className="grid gap-5">
+                                <form onSubmit={handleSubmit} className="grid gap-5">
                                     {error && <div className="text-red-400 bg-red-900/60 p-3 rounded-md text-sm border border-red-700">{error}</div>}
                                     
                                     <input type="text" name="name" placeholder="Full Name *" required value={formData.name} onChange={handleChange} className="w-full px-4 py-3 bg-gray-800 text-gray-100 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-gray-400" />
+                                    
                                     <input type="email" name="email" placeholder="Email Address *" required value={formData.email} onChange={handleChange} className="w-full px-4 py-3 bg-gray-800 text-gray-100 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-gray-400" />
-                                    <input type="text" name="businessName" placeholder="Business Name" value={formData.businessName} onChange={handleChange} className="w-full px-4 py-3 bg-gray-800 text-gray-100 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-gray-400" />
+                                    
+                                    <input type="tel" name="phone" placeholder="Phone Number" value={formData.phone} onChange={handleChange} className="w-full px-4 py-3 bg-gray-800 text-gray-100 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-gray-400" />
+                                    
                                     <select name="industry" required value={formData.industry} onChange={handleChange} className="w-full px-4 py-3 bg-gray-800 text-gray-100 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
                                         <option value="" disabled>Select Your Industry *</option>
-                                        <option value="Home Services">Home Services</option>
-                                        <option value="Manufacturing">Manufacturing</option>
-                                        <option value="Healthcare">Healthcare</option>
-                                        <option value="Financial Services">Financial Services</option>
-                                        <option value="Real Estate">Real Estate</option>
-                                        <option value="Other">Other</option>
-                                    </select>
-                                    <select name="inquiryType" value={formData.inquiryType} onChange={handleChange} className="w-full px-4 py-3 bg-gray-800 text-gray-100 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                                        <option value="AVA $99 Offer">AVA $99 Offer</option>
-                                        <option value="Advanced Solutions Inquiry">Advanced Solutions Inquiry</option>
-                                        <option value="General Inquiry">General Inquiry</option>
+                                        <option value="home_services">Home Services (Plumbing, HVAC, etc.)</option>
+                                        <option value="oil_and_gas">Oil and Gas</option>
+                                        <option value="real_estate">Real Estate</option>
+                                        <option value="restaurants">Restaurants</option>
+                                        <option value="medical">Medical & Dental</option>
+                                        <option value="legal">Legal Services</option>
+                                        <option value="automotive">Automotive</option>
+                                        <option value="other">Other</option>
                                     </select>
                                     
+                                    <input type="text" name="businessName" placeholder="Business Name *" required value={formData.businessName} onChange={handleChange} className="w-full px-4 py-3 bg-gray-800 text-gray-100 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-gray-400" />
+                                    
+                                    <input type="text" name="role" placeholder="Your Role (e.g., Owner, Manager) *" required value={formData.role} onChange={handleChange} className="w-full px-4 py-3 bg-gray-800 text-gray-100 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-gray-400" />
+                                    
+                                    <input type="text" name="city" placeholder="City" value={formData.city} onChange={handleChange} className="w-full px-4 py-3 bg-gray-800 text-gray-100 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-gray-400" />
+                                    
                                     <button type="submit" disabled={status === 'loading'} className="w-full px-4 py-3 text-lg bg-teal-500 text-gray-900 font-bold rounded-lg shadow-md hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-75 disabled:opacity-60 disabled:cursor-not-allowed transition-colors duration-150">
-                                        {status === 'loading' ? 'Submitting...' : 'Submit Inquiry'}
+                                        {status === 'loading' ? 'Securing Your Spot...' : 'Claim My $99 Spot Now'}
                                     </button>
+                                    
+                                    <div className="text-xs text-gray-500 text-center">
+                                        By submitting, you agree to our terms and privacy policy. No spam, ever.
+                                    </div>
                                 </form>
                             </>
                         )}
@@ -259,14 +623,16 @@
             );
         };
         
+        // Enhanced Chatbot Widget Component with CRM integration
         const ChatbotWidget = () => {
             const [isOpen, setIsOpen] = React.useState(false);
             const [messages, setMessages] = React.useState([
-                { text: "Hey there! I'm AVA, your friendly assistant from Magnolia AI Experts. How can I help you?", sender: 'bot' }
+                { text: "Hey there! I'm AVA, your friendly assistant from Magnolia AI Experts. How can I help you, cher?", sender: 'bot' }
             ]);
             const [inputValue, setInputValue] = React.useState('');
             const [isTyping, setIsTyping] = React.useState(false);
             const [hasBeenOpened, setHasBeenOpened] = React.useState(false);
+            const [userInfo, setUserInfo] = React.useState(null);
             const chatBodyRef = React.useRef(null);
             const videoRef = React.useRef(null);
 
@@ -289,9 +655,14 @@
                 setIsOpen(!isOpen);
                 if (!hasBeenOpened) {
                     setHasBeenOpened(true);
+                    window.leadTracker.trackChatInteraction();
                 }
             };
             
+            const handleInputChange = (e) => {
+                setInputValue(e.target.value);
+            };
+
             const handleSendMessage = () => {
                 const messageText = inputValue.trim();
                 if (messageText) {
@@ -302,17 +673,27 @@
             };
 
             const handleKeyUp = (event) => {
-                if (event.key === 'Enter') handleSendMessage();
+                if (event.key === 'Enter') {
+                    handleSendMessage();
+                }
             };
             
             const simulateBotResponse = (userMessage) => {
                 setIsTyping(true);
+                
                 setTimeout(() => {
                     const responses = {
-                        "default": "That's a great question! For more detailed inquiries about our advanced solutions, I'd recommend booking a consultation. Can I help you get started with our $99 AVA offer?",
-                        "hello": "Hey there yourself! How can I help you today?",
+                        "default": "That's a great question! While I'm a demo, a fully trained AVA could give you a detailed answer. Can I help you get started with our $99 offer?",
+                        "hello": "Hey there yourself! How's it going? Interested in learning about AVA?",
                         "help": "Sure thing! You can ask me about our services, pricing, or how to get started. What's on your mind?",
-                        "price": "Our flagship AI Virtual Agent (AVA) starts at a special rate of just $99/mo. For our advanced enterprise solutions, we provide custom quotes after a discovery call. Would you like to book one?",
+                        "joke": "Why don't crawfish share? Because they're shellfish! Ha! But seriously, let's talk about how AVA can help your business.",
+                        "thanks": "You're very welcome! Let me know if you need anything else, yeah?",
+                        "price": "We have a special Founder's Rate right now for just $99/mo, locked in for life! It's a great deal to get started. Want to claim your spot?",
+                        "hours": "We work for you 24/7! Our human team at Magnolia AI Experts is available during standard business hours to get you set up.",
+                        "plumber": "Absolutely! AVA is perfect for plumbers. It can book appointments for leaky faucets or clogged drains, even when you're on a job. You'll never miss a lead.",
+                        "contact": "You can reach us at info@magnoliaaiexperts.com or click 'Get Started' to claim your founder's rate!",
+                        "demo": "I'd love to show you how AVA works! Click the 'Get Started' button to schedule a demo and claim your $99 rate.",
+                        "features": "AVA can answer customer questions 24/7, book appointments, qualify leads, and integrate with your existing systems. What industry are you in?"
                     };
 
                     const lowerCaseMessage = userMessage.toLowerCase();
@@ -320,10 +701,18 @@
 
                     if (lowerCaseMessage.includes('help')) botMessage = responses.help;
                     else if (lowerCaseMessage.includes('hello') || lowerCaseMessage.includes('hi')) botMessage = responses.hello;
-                    else if (lowerCaseMessage.includes('price') || lowerCaseMessage.includes('cost') || lowerCaseMessage.includes('pricing')) botMessage = responses.price;
-                    
+                    else if (lowerCaseMessage.includes('joke')) botMessage = responses.joke;
+                    else if (lowerCaseMessage.includes('price') || lowerCaseMessage.includes('cost') || lowerCaseMessage.includes('discount')) botMessage = responses.price;
+                    else if (lowerCaseMessage.includes('hour')) botMessage = responses.hours;
+                    else if (lowerCaseMessage.includes('plumber') || lowerCaseMessage.includes('home service')) botMessage = responses.plumber;
+                    else if (lowerCaseMessage.includes('thank')) botMessage = responses.thanks;
+                    else if (lowerCaseMessage.includes('contact') || lowerCaseMessage.includes('reach')) botMessage = responses.contact;
+                    else if (lowerCaseMessage.includes('demo') || lowerCaseMessage.includes('show')) botMessage = responses.demo;
+                    else if (lowerCaseMessage.includes('feature') || lowerCaseMessage.includes('what can') || lowerCaseMessage.includes('do')) botMessage = responses.features;
+
                     setIsTyping(false);
                     setMessages(prev => [...prev, { text: botMessage, sender: 'bot' }]);
+
                 }, 1500 + Math.random() * 500);
             };
 
@@ -345,10 +734,15 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
                             </button>
                         </div>
+                        
                         <div ref={chatBodyRef} className="chat-body flex-1 p-4 space-y-4 overflow-y-auto">
                             {messages.map((msg, index) => (
                                 <div key={index} className={classNames('flex', msg.sender === 'user' ? 'justify-end' : 'justify-start')}>
-                                    <div className={classNames('chat-bubble p-3 rounded-lg', msg.sender === 'user' ? 'bg-indigo-600 text-white rounded-br-none' : 'bg-gray-700 text-gray-200 rounded-bl-none')}>
+                                    <div className={classNames('chat-bubble p-3 rounded-lg', 
+                                        msg.sender === 'user' 
+                                            ? 'bg-indigo-600 text-white rounded-br-none'
+                                            : 'bg-gray-700 text-gray-200 rounded-bl-none'
+                                    )}>
                                         <p>{msg.text}</p>
                                     </div>
                                 </div>
@@ -363,17 +757,48 @@
                                 </div>
                             )}
                         </div>
+                        
                         <div className="p-4 bg-gray-800 border-t border-gray-700">
                             <div className="flex items-center space-x-2">
-                                <input type="text" value={inputValue} onChange={(e) => setInputValue(e.target.value)} onKeyUp={handleKeyUp} placeholder="Type a message..." className="flex-1 w-full px-4 py-2 bg-gray-600 text-white placeholder-gray-400 border border-transparent rounded-full focus:outline-none focus:ring-2 focus:ring-teal-500" />
-                                <button onClick={handleSendMessage} aria-label="Send Message" disabled={!inputValue.trim()} className="p-3 bg-teal-500 hover:bg-teal-600 text-gray-900 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 disabled:opacity-50 disabled:cursor-not-allowed">
+                                <input 
+                                    type="text" 
+                                    value={inputValue}
+                                    onChange={handleInputChange}
+                                    onKeyUp={handleKeyUp}
+                                    placeholder="Type a message..." 
+                                    className="flex-1 w-full px-4 py-2 bg-gray-600 text-white placeholder-gray-400 border border-transparent rounded-full focus:outline-none focus:ring-2 focus:ring-teal-500"
+                                />
+                                <button 
+                                    onClick={handleSendMessage} 
+                                    aria-label="Send Message" 
+                                    disabled={!inputValue.trim()}
+                                    className="p-3 bg-teal-500 hover:bg-teal-600 text-gray-900 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 transform rotate-45" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
                                 </button>
                             </div>
                         </div>
                     </div>
-                     <button id="ava-widget-toggle-btn" onClick={toggleWidget} aria-label="Open Chat" aria-expanded={isOpen} className={classNames('w-24 h-24 bg-transparent rounded-full flex items-center justify-center overflow-hidden focus:outline-none focus:ring-4 focus:ring-teal-500 focus:ring-opacity-50', !isOpen && !hasBeenOpened && 'pulsing-chat')}>
-                        <video ref={videoRef} id="avatar-video" className="w-full h-full object-cover" autoPlay muted playsInline></video>
+
+                     <button 
+                        id="ava-widget-toggle-btn"
+                        onClick={toggleWidget} 
+                        aria-label="Open Chat" 
+                        aria-expanded={isOpen}
+                        className={classNames(
+                            'w-24 h-24 bg-transparent rounded-full flex items-center justify-center overflow-hidden focus:outline-none focus:ring-4 focus:ring-teal-500 focus:ring-opacity-50',
+                            !isOpen && !hasBeenOpened && 'pulsing-chat'
+                         )}
+                     >
+                        <video 
+                            ref={videoRef}
+                            id="avatar-video"
+                            className="w-full h-full object-cover"
+                            autoPlay
+                            muted
+                            playsInline
+                        >
+                        </video>
                     </button>
                 </div>
             );
@@ -386,7 +811,18 @@
                     <ul className="flex justify-center items-center flex-wrap gap-x-2 md:gap-x-6 gap-y-1">
                         {navLinks.map((link) => (
                             <li key={link.name}>
-                                <a href={link.isButton ? undefined : link.href} onClick={link.isButton ? onCtaClick : null} style={{ cursor: 'pointer' }} className={classNames('block px-2 py-2 md:px-3 text-sm md:text-base font-bold rounded-md transition-all duration-300 whitespace-nowrap', activeSection === (link.href && link.href.substring(1)) && !link.isButton ? 'bg-indigo-600 text-white shadow-lg' : 'text-gray-300 hover:bg-gray-700 hover:text-white', link.isButton && 'bg-teal-500 text-gray-900 hover:bg-teal-400 shadow-lg')}>
+                                <a 
+                                    href={link.isButton ? undefined : link.href}
+                                    onClick={link.isButton ? onCtaClick : null}
+                                    style={{ cursor: 'pointer' }}
+                                    className={classNames(
+                                        'block px-2 py-2 md:px-3 text-sm md:text-base font-bold rounded-md transition-all duration-300 whitespace-nowrap',
+                                        activeSection === (link.href && link.href.substring(1)) && !link.isButton
+                                            ? 'bg-indigo-600 text-white shadow-lg'
+                                            : 'text-gray-300 hover:bg-gray-700 hover:text-white',
+                                        link.isButton && 'bg-teal-500 text-gray-900 hover:bg-teal-400 shadow-lg'
+                                    )}
+                                >
                                     {link.name}
                                 </a>
                             </li>
@@ -399,7 +835,7 @@
         const Header = () => {
              const typedRef = React.useRef(null);
              React.useEffect(() => {
-                 const options = { strings: ['Your 24/7 Virtual Receptionist.', 'Turn Missed Calls into Booked Jobs.', 'The AI Employee That Never Sleeps.', 'Built for Your Business.'], typeSpeed: 50, backSpeed: 30, backDelay: 2500, startDelay: 500, loop: true, smartBackspace: true, };
+                 const options = { strings: ['Your 24/7 Virtual Receptionist.', 'Turn Missed Calls into Booked Jobs.', 'The AI Employee That Never Sleeps.', 'Built for Local Businesses.'], typeSpeed: 50, backSpeed: 30, backDelay: 2500, startDelay: 500, loop: true, smartBackspace: true, };
                  const typed = new Typed(typedRef.current, options);
                  return () => typed.destroy();
              }, []);
@@ -414,7 +850,7 @@
                      <div className="relative z-20 container mx-auto px-4 py-20 md:py-32 lg:py-40 flex flex-col items-center">
                          <div className="absolute top-4 right-4 md:top-8 md:right-8 z-30">
                              <div className="bg-teal-500/90 text-white rounded-full w-28 h-28 flex flex-col items-center justify-center text-center shadow-lg pulse">
-                                 <span className="text-xs font-bold -mt-1">AI Agent Offer</span>
+                                 <span className="text-xs font-bold -mt-1">Special Rate</span>
                                  <span className="text-4xl font-black leading-none">$99</span>
                                  <span className="text-xs opacity-80">Locked In</span>
                              </div>
@@ -426,11 +862,11 @@
                              </a>
                          </div>
                          <div className="max-w-4xl">
-                             <h1 className="text-4xl md:text-5xl lg:text-6xl font-black mb-4 slide-up">Stop Losing Leads.</h1>
+                             <h1 className="text-4xl md:text-5xl lg:text-6xl font-black mb-4 slide-up">Stop Losing Leads in Lafayette.</h1>
                              <p className="text-teal-400 font-bold text-lg md:text-xl lg:text-2xl mb-6 min-h-[3em] slide-up">
                                  <span ref={typedRef}></span>
                              </p>
-                             <p className="text-base md:text-lg text-gray-200 max-w-2xl mx-auto mb-8 slide-up">For business owners, every missed call is a lost opportunity. Our AI solutions work 24/7 to engage your customers, book appointments, and capture leads—turning every inquiry into revenue.</p>
+                             <p className="text-base md:text-lg text-gray-200 max-w-2xl mx-auto mb-8 slide-up">For local business owners, every missed call is a lost opportunity. AVA works 24/7 to engage your customers, book appointments, and capture leads—turning every inquiry into revenue.</p>
                              <div className="flex flex-wrap justify-center gap-3 md:gap-4 slide-up">
                                  {['24/7 Lead Capture', 'Instant Answers', 'Saves You Time'].map(feature => (
                                      <div key={feature} className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-5 py-3">
@@ -447,7 +883,7 @@
         const FeaturesSection = () => (
              <section id="features" className="bg-gray-800 py-16 md:py-24">
                  <div className="container mx-auto px-4">
-                     <SectionTitle title="The AI Employee That Pays for Itself" subtitle="Our AI Virtual Agent does the repetitive work so you can focus on your craft." />
+                     <SectionTitle title="The AI Employee That Pays for Itself" subtitle="AVA does the repetitive work so you can focus on your craft." />
                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                          {[
                              { icon: '💰', title: 'Never Miss a Sale', description: "AVA qualifies leads and books appointments 24/7, even when you're on a job or asleep.", aria: 'Money Bag Icon' },
@@ -466,138 +902,73 @@
              </section>
         );
 
-        const ServicesSection = ({ onCtaClick }) => (
-            <section id="services" className="bg-gray-900 py-16 md:py-24">
-                <div className="container mx-auto px-4">
-                    <SectionTitle title="Our Core AI Services" subtitle="We build custom AI systems to solve your biggest business challenges." />
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {[
-                            { icon: '🤖', title: 'Custom GPT Development', description: 'Want a specialized AI chatbot? We build and train custom GPT models on your data for expert-level conversations.' },
-                            { icon: '⚙️', title: 'AI Automation Services', description: 'Need to streamline operations? Book an AI Discovery Session to explore custom workflows and automation opportunities.' },
-                            { icon: '📈', title: 'Lead-to-Claim T.R.A.C.E. Ecosystem', description: 'A specialized system for roofers to track leads from initial contact to a paid claim, powered by AI.' },
-                            { icon: '🌐', title: 'Lead Generation Chatbot Pages', description: 'Get our flagship AVA chatbot integrated into a high-converting landing page built to turn visitors into qualified leads.' },
-                            { icon: '🤝', title: 'AI Integration Consulting', description: 'Not sure where to start with AI? Our experts will help you identify opportunities and create a roadmap for success.' },
-                            { icon: '🎓', title: 'Custom Tailored Local AI Solutions', description: 'Empower your team with custom AI tools and the skills to use them effectively, enhancing productivity and innovation.' },
-                        ].map((service) => (
-                            <div key={service.title} className="service-card bg-gray-800 p-8 rounded-xl shadow-lg flex flex-col transition-all duration-300 hover:-translate-y-2 hover:shadow-indigo-500/20 border-2 border-gray-700 hover:border-teal-500">
-                                <div className="text-4xl mb-4" role="img">{service.icon}</div>
-                                <h3 className="text-xl font-bold text-white mb-2">{service.title}</h3>
-                                <p className="text-gray-400 flex-grow">{service.description}</p>
-                                <button onClick={onCtaClick} className="mt-6 text-teal-400 font-semibold hover:text-teal-300 self-start">
-                                   Book a Consultation &rarr;
-                                </button>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </section>
-        );
-        
-        const AdvancedServicesSection = ({ onCtaClick }) => {
-            const [expandedService, setExpandedService] = React.useState(null);
-
-            const toggleService = (serviceName) => {
-                setExpandedService(expandedService === serviceName ? null : serviceName);
-            };
-
-            const serviceCategories = [
-                {
-                    category: "Ready to Supercharge Your Operations?",
-                    services: [
-                        { name: "AI-Enhanced Workflow Automation & Optimization", short_desc: "Harmonize your operations with intelligent process automation.", full_desc: "We map existing workflows, identify repetitive tasks ripe for AI acceleration, and implement end-to-end automation—freeing your team for high-value work.", deliverables: "Workflow analysis report, custom automation pipelines, training & handoff documentation." },
-                        { name: "Intelligent Human-AI Collaboration Redesign", short_desc: "Redefine how humans and AI agents work together.", full_desc: "From role definitions and task allocation to interactive dashboards, we design collaboration patterns that maximize productivity and employee satisfaction.", deliverables: "Collaboration playbooks, UI prototypes, change management plan." },
-                        { name: "Interactive AI UX & Interface Engineering", short_desc: "Craft user experiences that make AI feel like a natural teammate.", full_desc: "We design intuitive interfaces, real-time feedback loops, and contextual prompts to keep users engaged and informed.", deliverables: "Wireframes, interactive prototypes, user testing insights." },
-                    ]
-                },
-                {
-                    category: "Is Your AI Performing at its Peak?",
-                    services: [
-                        { name: "Proactive AI Model Monitoring & Drift Detection", short_desc: "Maintain peak model performance in production.", full_desc: "Our monitoring framework continuously tracks data drift, performance metrics, and triggers automated retraining to ensure your AI stays accurate and reliable.", deliverables: "Monitoring dashboards, drift alert system, retraining pipeline." },
-                        { name: "Adaptive Performance Tuning & Retraining Pipelines", short_desc: "Keep pace with changing data and business needs.", full_desc: "We build adaptive pipelines that retrain and redeploy models automatically, leveraging the latest data to maintain accuracy and relevance.", deliverables: "CI/CD for ML, automated data ingestion scripts, retraining schedules." },
-                        { name: "AI Health-Check & Compliance Audits", short_desc: "Safeguard your AI initiatives with rigorous health checks.", full_desc: "We audit data lineage, model versions, and governance policies to ensure compliance with internal standards and external regulations.", deliverables: "Audit report, remediation roadmap, compliance certification support." },
-                    ]
-                },
-                {
-                    category: "Need a Powerful & Reliable AI Infrastructure?",
-                    services: [
-                        { name: "Scalable Infrastructure & Resource Optimization", short_desc: "Scale AI workloads seamlessly across clouds and edge.", full_desc: "We architect robust infrastructure to optimize GPU usage, minimize latency, and control costs—whether in AWS, Azure, GCP, or on-premises.", deliverables: "Architecture diagrams, cost-optimization plan, deployment scripts." },
-                        { name: "Multi-Model Orchestration with Kubernetes", short_desc: "Simplify complex AI portfolios with containerized orchestration.", full_desc: "Our solutions automate model deployment, scaling, and version management—enabling you to run dozens of models reliably.", deliverables: "Helm charts, Kubernetes manifests, autoscaling policies." },
-                        { name: "Edge-AI for Real-Time Processing", short_desc: "Deliver AI insights at the edge for mission-critical applications.", full_desc: "We tune inference engines and network configurations to achieve sub-millisecond response times in manufacturing lines or trading floors.", deliverables: "Edge deployment packages, latency benchmarks, failover strategies." },
-                    ]
-                },
-                {
-                    category: "Looking for Industry-Specific AI Expertise?",
-                    services: [
-                        { name: "Healthcare AI & FDA/HIPAA Compliance", short_desc: "Navigate the complexities of healthcare AI.", full_desc: "From EHR integration to FDA validation and HIPAA compliance, we deliver solutions that improve patient care without risking compliance.", deliverables: "Validation protocols, secure data pipelines, user training modules." },
-                        { name: "Financial AI for Risk Modeling & Fraud Detection", short_desc: "Build unbreakable trust in your financial AI systems.", full_desc: "We develop Basel III-compliant models, real-time fraud detection pipelines, and audit-ready documentation to meet regulators’ standards.", deliverables: "Risk scoring engines, monitoring dashboards, compliance reporting templates." },
-                        { name: "AI for Manufacturing: Cut Maintenance Costs by 35%", short_desc: "Reduce downtime with AI-driven predictive maintenance.", full_desc: "We integrate sensor networks, train predictive models, and surface alerts to maintenance teams—saving up to 35% in unplanned outages.", deliverables: "Sensor integration guides, anomaly detection models, dashboard visualizations." },
-                    ]
-                },
-                {
-                    category: "Need Strategic AI Guidance?",
-                    services: [
-                        { name: "Outcome-Based AI Pricing & ROI-Guaranteed Contracts", short_desc: "Partner with us on shared success. We win when you win.", full_desc: "Our outcome-based contracts tie fees to measurable ROI, ensuring both parties benefit from AI’s impact on revenue or cost savings.", deliverables: "KPI definition workshops, contract templates, performance tracking." },
-                        { name: "AI Initiative Rescue & Recovery Services", short_desc: "Is your AI project stalled or failing? Let us get it back on track.", full_desc: "We jump in with emergency “rescue” packages—analyzing failure points, refactoring models, and relaunching initiatives fast.", deliverables: "Rapid-response playbook, gap analysis, recovery timeline." },
-                        { name: "Strategic AI Transformation & Fractional Leadership", short_desc: "Gain C-suite AI oversight without a full-time hire.", full_desc: "Our fractional AI executives guide your roadmap, align stakeholders, and drive innovation—ensuring sustained momentum and ROI.", deliverables: "Transformation roadmap, advisory board sessions, progress reports." },
-                    ]
-                }
-            ];
-
-            return (
-                <section id="advanced-solutions" className="bg-gray-800 py-16 md:py-24">
-                    <div className="container mx-auto px-4">
-                        <SectionTitle title="Advanced & Enterprise AI Solutions" subtitle="For complex challenges, we offer a suite of specialized services to drive enterprise-level transformation." />
-                        <div className="space-y-12">
-                            {serviceCategories.map(category => (
-                                <div key={category.category} className="advanced-service-category">
-                                    <h3 className="text-2xl font-bold text-teal-400 mb-6 border-l-4 border-teal-400 pl-4">{category.category}</h3>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
-                                        {category.services.map(service => (
-                                            <div key={service.name} className="p-4 rounded-lg bg-gray-900/50">
-                                                <h4 className="font-semibold text-white cursor-pointer" onClick={() => toggleService(service.name)}>{service.name}</h4>
-                                                <p className="text-gray-400 text-sm mt-1">{service.short_desc}</p>
-                                                <div className={classNames('details-content', expandedService === service.name && 'expanded')}>
-                                                    <p className="text-gray-300 text-sm mt-3 pt-3 border-t border-gray-700">{service.full_desc}</p>
-                                                    <p className="text-teal-400 text-xs mt-2 font-semibold">KEY DELIVERABLES: <span className="text-gray-400 font-normal">{service.deliverables}</span></p>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                        <div className="text-center mt-16">
-                            <button onClick={onCtaClick} className="cta-button inline-block bg-indigo-600 text-white font-bold text-lg px-12 py-4 rounded-full transition-transform duration-300 hover:-translate-y-1 shadow-lg">
-                                Schedule Your AI Readiness Assessment
-                            </button>
-                        </div>
-                    </div>
-                </section>
-            );
-        };
-
-        const PromoSection = ({ onCtaClick }) => (
+        const PromoSection = () => (
              <section id="promo" className="bg-gray-900 py-16">
                   <div className="container mx-auto px-4">
                       <div className="promotion-card bg-gradient-to-br from-gray-700 to-gray-800 text-center p-8 md:p-12 rounded-2xl border border-indigo-500 shadow-xl max-w-4xl mx-auto">
-                          <h2 className="text-3xl md:text-4xl font-bold text-teal-400 mb-3">Limited-Time Founder's Rate for AVA</h2>
+                          <h2 className="text-3xl md:text-4xl font-bold text-teal-400 mb-3">Limited-Time Founder's Rate</h2>
                           <p className="text-lg text-yellow-300 font-bold mb-4">Only 7 spots remaining at this price!</p>
-                          <p className="text-base md:text-lg text-gray-200">To celebrate our launch, the first 20 businesses to sign up for our AI Virtual Agent (AVA) get the complete package for just <span className="font-bold text-white text-xl">$99/mo</span>. This rate is locked in forever. Regular price: <s>$249/mo</s>.</p>
-                           <button onClick={onCtaClick} className="mt-8 cta-button inline-block bg-teal-500 text-gray-900 font-bold text-lg px-12 py-4 rounded-full transition-transform duration-300 hover:-translate-y-1 shadow-lg">
-                                Claim My $99 Spot Now
-                           </button>
+                          <p className="text-base md:text-lg text-gray-200">To celebrate our launch, the first 20 local businesses to sign up get our complete AI Virtual Agent package for just <span className="font-bold text-white text-xl">$99/mo</span>. This rate is locked in forever. Regular price: <s>$249/mo</s>.</p>
                       </div>
                   </div>
              </section>
         );
-        
+
+        const HowItWorksSection = () => (
+             <section id="how-it-works" className="py-16 md:py-24">
+                  <div className="container mx-auto px-4">
+                     <SectionTitle title="Go Live This Week" />
+                     <div className="relative flex flex-col md:flex-row justify-center items-stretch gap-8 md:gap-16">
+                          <div className="hidden md:block absolute top-1/2 left-0 w-full h-0.5 border-t-2 border-dashed border-gray-600 -translate-y-1/2"></div>
+                          {[
+                              { title: "You Sign Up", description: "Click 'Get Started' and claim your $99 founder's rate. It takes 2 minutes." },
+                              { title: "We Customize", description: "Our team trains AVA on your specific business info, services, and voice." },
+                              { title: "You Grow", description: "We add AVA to your website and you immediately start capturing more leads and saving time." }
+                          ].map((step, index) => (
+                              <div key={index} className="step-card relative bg-gray-800 p-8 rounded-xl shadow-lg z-10 flex-1 max-w-sm text-center border border-gray-700">
+                                  <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 bg-indigo-600 text-white rounded-full flex items-center justify-center text-xl font-bold border-4 border-gray-900">
+                                      {index + 1}
+                                  </div>
+                                  <h3 className="text-xl font-bold text-white mt-8 mb-3">{step.title}</h3>
+                                  <p className="text-gray-400">{step.description}</p>
+                              </div>
+                          ))}
+                     </div>
+                  </div>
+             </section>
+        );
+
+        const TestimonialsSection = () => (
+             <section id="testimonials" className="bg-gray-800 py-16 md:py-24">
+                 <div className="container mx-auto px-4">
+                     <SectionTitle title="Trusted by Businesses Like Yours" />
+                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-start">
+                         <div className="testimonial-card relative bg-gray-900 p-8 rounded-xl shadow-lg border border-gray-700">
+                              <div className="absolute top-4 left-6 text-7xl font-serif text-indigo-500/20 -z-0">"</div>
+                              <div className="relative z-10">
+                                 <p className="text-lg italic text-gray-300 mb-6">"In the first month, we saw a <span className='font-bold text-white'>30% increase in booked appointments</span> because AVA captured all the after-hours website leads we used to miss. It's a game-changer for our Lafayette office."</p>
+                                 <div className="text-right font-bold text-teal-400">- J. Broussard, Home Services</div>
+                              </div>
+                         </div>
+                         <div className="testimonial-card relative bg-gray-900 p-8 rounded-xl shadow-lg border border-gray-700">
+                              <div className="absolute top-4 left-6 text-7xl font-serif text-indigo-500/20 -z-0">"</div>
+                              <div className="relative z-10">
+                                 <p className="text-lg italic text-gray-300 mb-6">"I was skeptical, but AVA now handles 90% of our routine questions about our menu and hours. My staff at our Johnston St. location is less stressed and can focus on the customers in front of them."</p>
+                                 <div className="text-right font-bold text-teal-400">- M. Prejean, Restaurant Owner</div>
+                              </div>
+                         </div>
+                     </div>
+                 </div>
+             </section>
+        );
+
         const CtaSection = ({ onCtaClick }) => (
              <section id="signup" className="bg-gradient-to-r from-indigo-700 to-indigo-900 text-white text-center py-16 md:py-24">
                  <div className="container mx-auto px-4">
-                     <h2 className="text-4xl md:text-5xl font-black mb-4">Ready to Implement AI?</h2>
-                     <p className="text-lg md:text-xl text-indigo-200 max-w-3xl mx-auto mb-8">Reclaim your time and grow your business with an employee that never sleeps. Secure your special offer or book a discovery call today.</p>
+                     <h2 className="text-4xl md:text-5xl font-black mb-4">Don't Lose Another Customer.</h2>
+                     <p className="text-lg md:text-xl text-indigo-200 max-w-3xl mx-auto mb-8">Reclaim your time and grow your business with an employee that never sleeps. Secure your $99/mo founder's rate before all slots are gone.</p>
                      <button onClick={onCtaClick} className="cta-button inline-block bg-teal-500 text-gray-900 font-bold text-lg px-12 py-4 rounded-full transition-transform duration-300 hover:-translate-y-1 shadow-lg pulse">
-                         Get Started Now
+                         Claim My $99 Spot Now
                      </button>
                  </div>
              </section>
@@ -607,8 +978,8 @@
               <footer className="bg-gray-900 text-center text-gray-400 py-8 border-t border-gray-800">
                   <div className="container mx-auto px-4">
                       <p className="font-bold text-white text-lg">Magnolia AI Experts</p>
-                      <p className="my-1">Your Partner in AI-Powered Growth</p>
-                      <p className="my-1">info@magnoliaaiexperts.com</p>
+                      <p className="my-1">Serving Lafayette & Acadiana</p>
+                      <p className="my-1">info@magnoliaaiexperts.com | (337) 555-0101</p>
                       <div className="mt-4">
                           <p>&copy; {new Date().getFullYear()} Magnolia AI Experts. All Rights Reserved.</p>
                       </div>
@@ -616,18 +987,19 @@
               </footer>
         );
 
-        // --- Main App Component ---
+        // --- Main App Component with enhanced tracking ---
         const App = () => {
             const [activeSection, setActiveSection] = React.useState('home');
             const [isModalOpen, setIsModalOpen] = React.useState(false);
 
+            // Handle animations and section observer
             React.useEffect(() => {
                 if (window.particlesJS) {
                     window.particlesJS('particles-js', { particles: { number: { value: 40, density: { enable: true, value_area: 800 } }, color: { value: "#05caa7" }, opacity: { value: 0.2 }, size: { value: 2 }, line_linked: { enable: true, distance: 150, color: "#4e54c8", opacity: 0.2 }, move: { enable: true, speed: 1 } }, interactivity: { events: { onhover: { enable: true, mode: "repulse" } }, modes: { repulse: { distance: 80 } } } });
                 }
                 
                 gsap.registerPlugin(ScrollTrigger);
-                gsap.utils.toArray('.feature-card, .service-card, .advanced-service-category, .testimonial-card, .promotion-card').forEach(elem => {
+                gsap.utils.toArray('.feature-card, .step-card, .testimonial-card, .promotion-card, .demo-text-content').forEach(elem => {
                     gsap.from(elem, { 
                         scrollTrigger: { trigger: elem, start: 'top 85%', toggleActions: 'play none none none' },
                         opacity: 0, y: 50, duration: 0.8, ease: 'power3.out',
@@ -637,7 +1009,9 @@
                 const sections = Array.from(document.querySelectorAll('header[id], section[id]'));
                 const observer = new IntersectionObserver((entries) => {
                     entries.forEach(entry => {
-                        if (entry.isIntersecting) setActiveSection(entry.target.id);
+                        if (entry.isIntersecting) {
+                            setActiveSection(entry.target.id);
+                        }
                     });
                 }, { rootMargin: '-40% 0px -60% 0px' });
                 sections.forEach(sec => observer.observe(sec));
@@ -648,21 +1022,62 @@
             React.useEffect(() => {
                 document.body.style.overflow = isModalOpen ? 'hidden' : 'unset';
             }, [isModalOpen]);
-            
-            const handleCtaClick = () => setIsModalOpen(true);
+
+            const structuredData = {
+                "@context": "https://schema.org",
+                "@type": "Service",
+                "serviceType": "AI Virtual Agent Provider",
+                "provider": { "@type": "Organization", "name": "Magnolia AI Experts" },
+                "name": "AI Virtual Agent (AVA) for Local Businesses in Lafayette, LA",
+                "description": seoData.description,
+                "areaServed": {
+                    "@type": "City",
+                    "name": "Lafayette",
+                    "address": { "@type": "PostalAddress", "addressRegion": "LA", "addressCountry": "US" }
+                },
+                "offers": {
+                    "@type": "Offer",
+                    "itemOffered": {
+                        "@type": "Service",
+                        "name": "AI Virtual Agent (AVA) Setup & Management",
+                        "description": "A 24/7 AI-powered virtual agent for your website to capture leads, answer customer questions, and book appointments."
+                    },
+                    "price": "99",
+                    "priceCurrency": "USD",
+                    "priceSpecification": { "@type": "PriceSpecification", "price": "99", "priceCurrency": "USD", "valueAddedTaxIncluded": "false", "unitText": "MONTH" }
+                }
+            };
+            const faqStructuredData = {
+                "@context": "https://schema.org",
+                "@type": "FAQPage",
+                "mainEntity": [{
+                    "@type": "Question", "name": "What is an AI Virtual Agent?",
+                    "acceptedAnswer": { "@type": "Answer", "text": "An AI Virtual Agent (like AVA) is a smart chatbot installed on your website that can understand customer questions and provide intelligent answers 24/7. It can capture leads, book appointments, and answer frequently asked questions, saving you time and money." }
+                },{
+                    "@type": "Question", "name": "How much does AVA cost?",
+                    "acceptedAnswer": { "@type": "Answer", "text": "For a limited time, we are offering a founder's rate of $99 per month for new customers in the Lafayette area. This price is locked in for life." }
+                },{
+                    "@type": "Question", "name": "How long does it take to set up?",
+                    "acceptedAnswer": { "@type": "Answer", "text": "Our expert team can typically have your custom AI Virtual Agent trained and implemented on your website within 3 business days." }
+                }]
+            };
 
             return (
                 <div className="bg-gray-900">
                     <Head title={seoData.title} description={seoData.description} keywords={seoData.keywords} />
+                    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
+                    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqStructuredData) }} />
+
                     {isModalOpen && <SignUpModal onClose={() => setIsModalOpen(false)} />}
-                    <Navigation activeSection={activeSection} onCtaClick={handleCtaClick} />
+                    
+                    <Navigation activeSection={activeSection} onCtaClick={() => setIsModalOpen(true)} />
                     <main>
                         <Header />
                         <FeaturesSection />
-                        <ServicesSection onCtaClick={handleCtaClick} />
-                        <AdvancedServicesSection onCtaClick={handleCtaClick} />
-                        <PromoSection onCtaClick={handleCtaClick} />
-                        <CtaSection onCtaClick={handleCtaClick} />
+                        <PromoSection />
+                        <HowItWorksSection />
+                        <TestimonialsSection />
+                        <CtaSection onCtaClick={() => setIsModalOpen(true)} />
                     </main>
                     <Footer />
                     <ChatbotWidget />
@@ -670,8 +1085,120 @@
             );
         };
 
-        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
 
+    </script>
+
+    <!-- Analytics and Tracking Scripts -->
+    <script>
+        // Google Analytics 4 (replace with your GA4 measurement ID)
+        window.gtag = window.gtag || function() { (gtag.q = gtag.q || []).push(arguments); };
+        gtag('js', new Date());
+        gtag('config', 'GA_MEASUREMENT_ID');
+
+        // Facebook Pixel (replace with your pixel ID)
+        !function(f,b,e,v,n,t,s)
+        {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+        n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+        if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+        n.queue=[];t=b.createElement(e);t.async=!0;
+        t.src=v;s=b.getElementsByTagName(e)[0];
+        s.parentNode.insertBefore(t,s)}(window, document,'script',
+        'https://connect.facebook.net/en_US/fbevents.js');
+        fbq('init', 'YOUR_PIXEL_ID');
+        fbq('track', 'PageView');
+
+        // Enhanced lead tracking on page load
+        window.addEventListener('load', function() {
+            // Track page view
+            if (window.gtag) {
+                gtag('event', 'page_view', {
+                    page_title: document.title,
+                    page_location: window.location.href
+                });
+            }
+        });
+
+        // Track user engagement milestones
+        let engagementTracked = {
+            '30_seconds': false,
+            '60_seconds': false,
+            '120_seconds': false
+        };
+
+        setTimeout(() => {
+            if (!engagementTracked['30_seconds']) {
+                if (window.gtag) gtag('event', 'engagement_30_seconds');
+                engagementTracked['30_seconds'] = true;
+            }
+        }, 30000);
+
+        setTimeout(() => {
+            if (!engagementTracked['60_seconds']) {
+                if (window.gtag) gtag('event', 'engagement_60_seconds');
+                engagementTracked['60_seconds'] = true;
+            }
+        }, 60000);
+
+        setTimeout(() => {
+            if (!engagementTracked['120_seconds']) {
+                if (window.gtag) gtag('event', 'engagement_120_seconds');
+                engagementTracked['120_seconds'] = true;
+            }
+        }, 120000);
+    </script>
+
+    <!-- OAuth Callback Handler -->
+    <script>
+        // Handle OAuth callback from Zoho
+        window.addEventListener('load', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const code = urlParams.get('code');
+            const error = urlParams.get('error');
+            
+            if (code) {
+                // Exchange code for access token
+                window.zohoCRM.getAccessToken(code).then(success => {
+                    if (success) {
+                        console.log('Zoho CRM authenticated successfully');
+                        // Remove the code from URL
+                        window.history.replaceState({}, document.title, window.location.pathname);
+                    } else {
+                        console.error('Failed to authenticate with Zoho CRM');
+                    }
+                });
+            } else if (error) {
+                console.error('OAuth error:', error);
+            }
+        });
+
+        // Fallback lead capture for when Zoho CRM is not available
+        window.fallbackLeadCapture = async function(leadData) {
+            try {
+                // You can implement alternative lead capture methods here
+                // For example, sending to your own server or another service
+                console.log('Using fallback lead capture:', leadData);
+                
+                // Example: Send to your own API endpoint
+                const response = await fetch('/api/leads', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(leadData)
+                });
+                
+                if (response.ok) {
+                    return { success: true, message: 'Lead captured successfully!' };
+                } else {
+                    throw new Error('Failed to capture lead');
+                }
+            } catch (error) {
+                console.error('Fallback capture failed:', error);
+                return { success: false, error: 'Failed to capture lead. Please try again.' };
+            }
+        };
     </script>
 </body>
 </html>
