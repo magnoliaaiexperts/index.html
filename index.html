@@ -99,15 +99,23 @@
     
     <!-- Zoho CRM Integration Script -->
     <script>
-        // Zoho CRM Configuration
+        // 🔧 ZOHO CRM CONFIGURATION - REPLACE WITH YOUR ACTUAL CREDENTIALS
         window.ZOHO_CONFIG = {
+            // ✅ Your provided Client ID
             CLIENT_ID: '1000.SO87YN4VVDINMKBKQJQGPSD0ZVLY8H',
-            CLIENT_SECRET: 'df8341349267dc784253a296209829d4c02e2e0970', // Replace with actual secret
-            REDIRECT_URI: window.location.origin + '/oauth/callback',
+            
+            // 🚨 REPLACE THIS: Get your actual client secret from the password link provided
+            CLIENT_SECRET: 'df8341349267dc784253a296209829d4c02e2e0970', // 
+            
+            // 🔧 UPDATE THIS: Replace with your actual domain
+            REDIRECT_URI: window.location.origin + '/oauth/callback', // e.g., 'https://magnoliaaiexperts.com/oauth/callback'
+            
             SCOPE: 'ZohoCRM.modules.ALL',
             ACCESS_TYPE: 'offline',
-            DOMAIN: 'https://www.zohoapis.com',
-            ACCOUNTS_URL: 'https://accounts.zoho.com'
+            
+            // 🌍 UPDATE THESE if you're using a different Zoho data center:
+            DOMAIN: 'https://www.zohoapis.com', // US: .com, EU: .eu, IN: .in, AU: .com.au, JP: .jp
+            ACCOUNTS_URL: 'https://accounts.zoho.com' // US: .com, EU: .eu, IN: .in, AU: .com.au, JP: .jp
         };
 
         // Zoho CRM Integration Service
@@ -1090,14 +1098,16 @@ Chat interactions: ${enrichedFormData.engagementData.chatInteractions ? 'Yes' : 
 
     </script>
 
-    <!-- Analytics and Tracking Scripts -->
+    <!-- 📊 ANALYTICS AND TRACKING SCRIPTS - REPLACE WITH YOUR IDs -->
     <script>
-        // Google Analytics 4 (replace with your GA4 measurement ID)
+        // 🚨 GOOGLE ANALYTICS 4 - REPLACE 'GA_MEASUREMENT_ID' WITH YOUR ACTUAL ID
+        // Get your GA4 ID from: https://analytics.google.com/ (Format: G-XXXXXXXXXX)
         window.gtag = window.gtag || function() { (gtag.q = gtag.q || []).push(arguments); };
         gtag('js', new Date());
-        gtag('config', 'GA_MEASUREMENT_ID');
+        gtag('config', 'G-XXXXXXXXXX'); // 🔧 REPLACE THIS WITH YOUR GA4 MEASUREMENT ID
 
-        // Facebook Pixel (replace with your pixel ID)
+        // 🚨 FACEBOOK PIXEL - REPLACE 'YOUR_PIXEL_ID' WITH YOUR ACTUAL PIXEL ID  
+        // Get your Pixel ID from: https://business.facebook.com/events_manager
         !function(f,b,e,v,n,t,s)
         {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
         n.callMethod.apply(n,arguments):n.queue.push(arguments)};
@@ -1106,7 +1116,7 @@ Chat interactions: ${enrichedFormData.engagementData.chatInteractions ? 'Yes' : 
         t.src=v;s=b.getElementsByTagName(e)[0];
         s.parentNode.insertBefore(t,s)}(window, document,'script',
         'https://connect.facebook.net/en_US/fbevents.js');
-        fbq('init', 'YOUR_PIXEL_ID');
+        fbq('init', 'YOUR_PIXEL_ID_HERE'); // 🔧 REPLACE THIS WITH YOUR FACEBOOK PIXEL ID
         fbq('track', 'PageView');
 
         // Enhanced lead tracking on page load
